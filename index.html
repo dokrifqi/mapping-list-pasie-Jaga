@@ -1,0 +1,1131 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#EDF1F2" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0E1A1F" media="(prefers-color-scheme: dark)">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Operan Jaga">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Mapping Operan Jaga</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600..800&family=DM+Mono:wght@400;500&family=Instrument+Sans:wght@400..700&display=swap">
+<style>
+:root{color-scheme:light}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;-webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
+button{touch-action:manipulation}
+:root{
+  /* Layout: lembar operan di ponsel. Header ringkas dengan progres, satu tab per pekerjaan, navigasi di bawah. Kode kamar bermonospasi seperti label tempat tidur; warna ruangan hanya titik penanda. */
+  --bg:#EDF1F2; --surface:#FFFFFF; --surface2:#F4F7F8; --ink:#13242A; --muted:#566A70; --line:#D2DBDD;
+  --accent:#0B5CAD; --on-accent:#FFFFFF; --accent-soft:#DDEBF8;
+  --warn:#8A5200; --warn-bg:#FFF0D2; --danger:#B3261E; --on-danger:#FFFFFF;
+  --w0:#D4472B; --w1:#D98A12; --w2:#B02F86; --w3:#7B5A3A; --w4:#2F7F6F; --w5:#5B5FC7;
+  --f-display:"Bricolage Grotesque",system-ui,sans-serif;
+  --f-body:"Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"DM Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1A1F; --surface:#15262D; --surface2:#1B3039; --ink:#E7F0F2; --muted:#9DB3B9; --line:#28414A;
+    --accent:#5AAEF0; --on-accent:#07202E; --accent-soft:#17384F;
+    --warn:#F2B24C; --warn-bg:#3A2D10; --danger:#FF8F85; --on-danger:#2A0907;
+    --w0:#FF8566; --w1:#F5B04A; --w2:#E27DC0; --w3:#C79B72; --w4:#62C2AD; --w5:#9EA3FF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1A1F; --surface:#15262D; --surface2:#1B3039; --ink:#E7F0F2; --muted:#9DB3B9; --line:#28414A;
+  --accent:#5AAEF0; --on-accent:#07202E; --accent-soft:#17384F;
+  --warn:#F2B24C; --warn-bg:#3A2D10; --danger:#FF8F85; --on-danger:#2A0907;
+  --w0:#FF8566; --w1:#F5B04A; --w2:#E27DC0; --w3:#C79B72; --w4:#62C2AD; --w5:#9EA3FF;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--f-body);padding-inline:16px;padding-block:0}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.wrap{max-width:720px;margin-inline:auto;padding-bottom:110px}
+h1{font:700 20px/1.1 var(--f-display);margin:0;letter-spacing:-.01em}
+h2{font:700 19px/1.2 var(--f-display);margin:0;text-wrap:balance}
+h3{font:600 14px/1.2 var(--f-body);margin:0}
+p{margin:0}
+.muted{color:var(--muted)}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;margin-inline:-16px;padding:12px 16px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+.top-in{max-width:720px;margin-inline:auto}
+.brand{display:flex;align-items:baseline;justify-content:space-between;gap:4px 12px;flex-wrap:wrap}
+.when{color:var(--muted);font-size:13px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-top:9px}
+.bar>i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
+.bar-t{font-size:12.5px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}
+
+/* nav */
+.nav{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px)}
+.nav-in{max-width:720px;margin-inline:auto;display:flex}
+.nav button{flex:1;min-height:56px;border:0;background:transparent;color:var(--muted);font:600 13px var(--f-body);position:relative;cursor:pointer}
+.nav button[aria-current="page"]{color:var(--accent)}
+.nav button[aria-current="page"]::before{content:"";position:absolute;top:0;left:24%;right:24%;height:3px;background:var(--accent);border-radius:0 0 3px 3px}
+
+/* generic */
+.info{margin-top:14px;padding:10px 12px;border-radius:8px;background:var(--accent-soft);font-size:13.5px;display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:14px}
+.lbl{display:block;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+textarea,input[type=text],input[type=search],select{width:100%;min-width:0;font-size:15px;color:var(--ink);background:var(--surface2);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+input[type=search]{-webkit-appearance:none;appearance:none}
+textarea{font-family:var(--f-mono);font-size:13px;line-height:1.55;resize:vertical}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:10px}
+.btn{min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--on-accent);font:600 14px var(--f-body);cursor:pointer}
+.btn.sec{background:transparent;color:var(--accent)}
+.btn.danger{background:transparent;border-color:var(--danger);color:var(--danger)}
+.btn.armed{background:var(--danger);color:var(--on-danger)}
+.sum{margin-top:10px;font-size:13.5px;color:var(--muted)}
+.flash{font-size:13px;color:var(--muted)}
+.warnbox{margin-top:10px;padding:10px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn);font-size:13px}
+.warnbox ul{margin:6px 0 0;padding-left:18px;font-family:var(--f-mono);font-size:12px}
+.empty{margin-top:18px;color:var(--muted);text-align:center;padding:18px 8px}
+.tools{display:grid;gap:10px;margin-top:12px}
+.chk{display:flex;align-items:center;gap:10px;min-height:40px;font-size:14px}
+.chk input{width:20px;height:20px;accent-color:var(--accent)}
+
+/* pills */
+.pills{display:flex;gap:8px;overflow-x:auto;padding:2px 0 8px;margin-top:12px}
+.tools .pills{margin-top:0}
+.pill{flex:0 0 auto;display:inline-flex;align-items:center;gap:8px;min-height:38px;padding:0 14px;border-radius:19px;border:1px solid var(--line);background:var(--surface);color:var(--ink);font:600 13.5px var(--f-body);cursor:pointer;white-space:nowrap}
+.pill .n{font:500 12px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.pill.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.pill.on .n{color:inherit;opacity:.85}
+.pill.off{border-style:dashed;color:var(--muted)}
+.pill.off.on{color:var(--on-accent)}
+
+/* program view */
+.sechead{margin-top:6px;display:grid;gap:4px}
+.hint{font-size:13.5px;color:var(--warn)}
+.sub{font-size:13px;color:var(--muted)}
+.ward{margin-top:18px}
+.ward>header{display:flex;align-items:center;gap:8px;padding-bottom:8px}
+.dot{width:10px;height:10px;border-radius:50%;flex:0 0 auto}
+.cnt{margin-left:auto;font:500 12px var(--f-mono);color:var(--muted);font-variant-numeric:tabular-nums}
+.chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:8px}
+.chip{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;min-height:54px;padding:8px 10px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;cursor:pointer;position:relative}
+.chip .code{max-width:100%;padding-right:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 11.5px var(--f-mono);letter-spacing:.04em;color:var(--muted)}
+.chip .nm{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 14px var(--f-body)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.chip.on .code{color:inherit;opacity:.85}
+.chip.on::after{content:"\2713";position:absolute;top:6px;right:9px;font-size:13px}
+.chip.empty .nm{font-weight:500;font-style:italic;color:var(--muted)}
+.chip.empty.on .nm{color:inherit}
+.fold{width:100%;min-height:44px;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:16px;padding:10px 12px;border:1px dashed var(--line);background:transparent;color:var(--ink);border-radius:8px;font:600 13.5px var(--f-body);cursor:pointer;text-align:left}
+.fold[aria-expanded="true"]{border-style:solid}
+.fold .n{font:500 12px var(--f-mono);color:var(--muted)}
+.noterow{display:grid;gap:4px;margin-top:10px}
+.who{display:flex;gap:8px;align-items:baseline;font-size:13.5px;min-width:0}
+.who .code{font:500 12px var(--f-mono);color:var(--muted);flex:0 0 auto}
+.who .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+/* patient view */
+.prow{border:1px solid var(--line);background:var(--surface);border-radius:8px;margin-top:6px;overflow:hidden}
+.prow-h{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 10px;align-items:center;min-height:48px;padding:10px 12px;border:0;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.prow-h .code{max-width:132px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 12.5px var(--f-mono);color:var(--muted)}
+.prow-h .nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prow-h .tags{grid-column:1 / -1;display:flex;flex-wrap:wrap;gap:6px}
+.tag{display:inline-block;max-width:100%;padding:2px 9px;border-radius:10px;background:var(--accent-soft);color:var(--ink);font-size:12px;font-weight:600}
+.tag.none{background:transparent;border:1px dashed var(--line);color:var(--muted);font-weight:500}
+.tag.plain{background:var(--surface2);font-family:var(--f-mono);font-weight:500}
+.chev{width:8px;height:8px;border-right:2px solid var(--muted);border-bottom:2px solid var(--muted);transform:rotate(45deg);transition:transform .15s;margin-right:4px}
+.open .chev{transform:rotate(-135deg)}
+.panel{border-top:1px solid var(--line);padding:12px;background:var(--surface2)}
+.pgrid{display:flex;flex-wrap:wrap;gap:8px}
+.panel .pill{background:var(--surface)}
+.panel .pill.on{background:var(--accent)}
+.help{font-size:12.5px;color:var(--muted);margin-bottom:8px}
+
+.bedgrid{display:grid;gap:6px;margin-top:10px}
+.bedcell{display:grid;grid-template-columns:44px minmax(0,1fr) minmax(0,1fr);gap:6px;align-items:center;min-width:0}
+.bedcell.wide{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.bedcell.wide .bc{grid-column:1 / -1}
+.bc{font:500 11.5px var(--f-mono);letter-spacing:.03em;color:var(--muted)}
+.bedcell input,.bedcell select{min-width:0;min-height:42px;padding:8px;font-size:14.5px}
+.bedcell select{text-overflow:ellipsis;color:var(--muted)}
+.bedcell.filled input{border-color:var(--accent);background:var(--surface);font-weight:600}
+.bedcell select.filled{border-color:var(--accent);background:var(--surface);color:var(--ink);font-weight:600}
+.dprow{margin-bottom:12px}
+.dprow .lbl{margin-bottom:4px}
+.dpt{font-size:12px;color:var(--muted);align-self:center}
+.ward>.wfold{margin-top:0}
+.wl{display:flex;align-items:center;gap:8px;min-width:0}
+
+/* result */
+#out{min-height:280px;margin-top:0}
+details.card summary{cursor:pointer;font-weight:600;font-size:14px;min-height:28px}
+details.card[open] summary{margin-bottom:10px}
+.orph-w{margin-top:10px}
+.orph-w b{display:block;font-size:13px;margin-bottom:6px}
+.orph-w .tag{margin:0 6px 6px 0}
+#add-form{display:grid;gap:10px;margin-top:12px}
+
+@media (prefers-reduced-motion: reduce){*{transition:none!important}}
+@supports (-webkit-touch-callout: none){input,select,textarea{font-size:16px!important}}
+</style>
+</head>
+<body>
+
+<header class="top"><div class="top-in">
+  <div class="brand"><h1>Mapping Operan Jaga</h1><span class="when" id="when"></span></div>
+  <div class="bar" id="bar" role="progressbar" aria-label="Pasien yang sudah punya program" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="prog-fill"></i></div>
+  <div class="bar-t" id="prog-text"></div>
+</div></header>
+
+<main class="wrap">
+  <div class="info" id="sample" hidden>
+    <span>Ini data contoh dengan nama rekaan. Ganti dengan daftar Anda di tab Data.</span>
+    <button class="btn sec" type="button" data-act="tab" data-t="data">Buka tab Data</button>
+  </div>
+
+  <section id="v-data" hidden>
+    <div class="info" id="install" hidden>
+      <span id="install-t"></span>
+      <button class="btn sec" type="button" id="install-btn" hidden>Pasang</button>
+    </div>
+    <div class="card">
+      <label class="lbl">Daftar pasien</label>
+      <p class="sub muted" style="font-size:13px">Ketik nama di tiap bed dan pilih DPJP-nya. Perubahan tersimpan otomatis. Bed yang dikosongkan dianggap tidak terisi.</p>
+      <p class="sum" id="sum-pat" role="status"></p>
+      <div id="pat-edit"></div>
+      <div id="warn-pat"></div>
+      <div class="row">
+        <button class="btn danger" type="button" data-act="clear-names" data-label="Kosongkan semua nama">Kosongkan semua nama</button>
+      </div>
+      <button class="fold" type="button" id="paste-toggle" data-act="paste-toggle" aria-expanded="false"><span>Tempel daftar baru</span><span class="n">+</span></button>
+      <div id="paste-box" hidden>
+        <label class="lbl" for="ta-pat" style="margin-top:12px">Teks daftar pasien</label>
+        <textarea id="ta-pat" rows="9" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Tempel daftar operan pasien di sini. Satu ruangan diawali namanya (Flamboyan 9), lalu baris kamar dan bed (901 A Nama / DPJP). DPJP boleh singkatan, misalnya Nefro, HO-Riza, dr. Hanum. Ini mengganti seluruh daftar."></textarea>
+        <div class="row"><button class="btn" type="button" data-act="read-pat">Baca daftar pasien</button></div>
+      </div>
+    </div>
+    <div class="card">
+      <label class="lbl" for="ta-prog">Template program jaga</label>
+      <textarea id="ta-prog" rows="9" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="Tempel program jaga di sini. Kalau di bawah tiap ruangan sudah ada nama pasien, isiannya ikut dipulihkan."></textarea>
+      <div class="row"><button class="btn" type="button" data-act="read-prog">Baca program</button></div>
+      <p class="sum" id="sum-prog" role="status"></p>
+      <div id="warn-prog"></div>
+    </div>
+    <div class="card">
+      <label class="lbl">Mulai ulang</label>
+      <p class="sub muted" style="font-size:13px">Nama pasien di satu bed berubah, programnya otomatis kosong lagi.</p>
+      <div class="row">
+        <button class="btn danger" type="button" data-act="clear-assign" data-label="Kosongkan semua program">Kosongkan semua program</button>
+        <button class="btn danger" type="button" data-act="reset-sample" data-label="Reset ke bed kosong">Reset ke bed kosong</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-prog">
+    <div class="pills" id="sec-pills" role="group" aria-label="Pilih program"></div>
+    <div class="sechead" id="sec-head"></div>
+    <div class="tools">
+      <input type="search" id="q-prog" placeholder="Cari nama atau kamar, mis. 904a" autocomplete="off">
+      <label class="chk"><input type="checkbox" id="cb-empty-prog"> Tampilkan bed tanpa nama</label>
+    </div>
+    <div id="sec-wards"></div>
+    <div id="sec-notes"></div>
+  </section>
+
+  <section id="v-pat" hidden>
+    <div class="tools">
+      <input type="search" id="q-pat" placeholder="Cari nama atau kamar" autocomplete="off">
+      <div class="pills" role="group" aria-label="Saring pasien">
+        <button class="pill on" type="button" data-act="flt" data-v="all" aria-pressed="true">Semua</button>
+        <button class="pill" type="button" data-act="flt" data-v="none" aria-pressed="false">Belum ada program</button>
+        <button class="pill" type="button" data-act="flt" data-v="some" aria-pressed="false">Sudah ada program</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="cb-empty-pat"> Tampilkan bed tanpa nama</label>
+    </div>
+    <div id="pat-list"></div>
+    <div class="card">
+      <button class="fold" id="add-toggle" type="button" data-act="add-toggle" aria-expanded="false" style="margin-top:0">Tambah pasien baru <span class="n">+</span></button>
+      <div id="add-form" hidden>
+        <div><label class="lbl" for="add-ward">Ruangan</label><select id="add-ward"></select></div>
+        <div><label class="lbl" for="add-rb">Kamar dan bed</label><input type="text" id="add-rb" placeholder="mis. 910 B, atau nama kamar khusus" autocomplete="off"></div>
+        <div><label class="lbl" for="add-name">Nama</label><input type="text" id="add-name" autocomplete="off"></div>
+        <div class="row" style="margin-top:0"><button class="btn" type="button" data-act="add">Tambahkan</button><span class="flash" id="add-msg" role="status"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-out" hidden>
+    <p class="sum" id="out-sum" style="margin-top:14px"></p>
+    <label class="chk"><input type="checkbox" id="cb-hide"> Sembunyikan ruangan yang kosong</label>
+    <label class="chk"><input type="checkbox" id="cb-dp"> Sertakan DPJP di tiap pasien</label>
+    <label class="lbl" for="out">Teks untuk WhatsApp</label>
+    <textarea id="out" readonly spellcheck="false"></textarea>
+    <div class="row"><button class="btn" id="copy" type="button" data-act="copy">Salin teks</button><span class="flash" id="copy-msg" role="status"></span></div>
+    <details class="card" id="orph"><summary id="orph-sum"></summary><div id="orph-body"></div></details>
+  </section>
+</main>
+
+<nav class="nav" aria-label="Tab"><div class="nav-in">
+  <button type="button" data-act="tab" data-t="data">Data</button>
+  <button type="button" data-act="tab" data-t="prog" aria-current="page">Program</button>
+  <button type="button" data-act="tab" data-t="pat">Pasien</button>
+  <button type="button" data-act="tab" data-t="out">Hasil</button>
+</div></nav>
+
+<script>
+(function(){
+'use strict';
+// ==LOGIC START==
+function norm(s){ return String(s==null?'':s).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim(); }
+function slug(s){ return norm(s).replace(/ /g,'-'); }
+function clean(s){ return String(s==null?'':s).replace(/[*_]/g,'').replace(/\s+/g,' ').trim(); }
+function has(o,k){ return !!o && Object.prototype.hasOwnProperty.call(o,k); }
+function wardMatch(a,b){
+  a=norm(a); b=norm(b);
+  if(!a||!b) return false;
+  return a===b || a.indexOf(b+' ')===0 || b.indexOf(a+' ')===0;
+}
+var BED_RE=/^(\d{2,4})\s*([A-Fa-f])(.*)$/;
+var WARD_RE=/^[A-Za-z]+(?:\s+\d+)?$/;
+var SEP_RE=/^[-–—_=~]{3,}$/;
+var SPECIAL_RE=/^(.*?\b[IVX]+)\s+(\S.*)$/;
+
+function parseBed(line){
+  var m=BED_RE.exec(line);
+  if(!m) return null;
+  var rest=m[3];
+  if(rest && !/^\s/.test(rest) && !/^[A-Z]/.test(rest)) return null;
+  return {room:m[1],bed:m[2].toUpperCase(),name:rest.replace(/\s+/g,' ').trim()};
+}
+function mkId(p){ return p.wkey+'|'+p.room+'|'+p.bed+'|'+norm(p.name); }
+
+function parsePatients(text){
+  var wards=[], patients=[], warnings=[], cur=null, ids={};
+  function ward(label){
+    var k=norm(label);
+    for(var i=0;i<wards.length;i++) if(wards[i].key===k) return wards[i];
+    var w={label:label,key:k}; wards.push(w); return w;
+  }
+  function add(w,room,bed,name,special){
+    var sp=splitDp(name); name=sp.name;
+    var p={ward:w.label,wkey:w.key,room:room,bed:bed,name:name,dp:sp.dp,special:special,manual:false};
+    p.id=mkId(p);
+    if(ids[p.id]){ warnings.push('Dobel: '+room+' '+bed+' '+name); return; }
+    ids[p.id]=1; patients.push(p);
+  }
+  String(text||'').split(/\r?\n/).forEach(function(raw){
+    var line=clean(raw);
+    if(!line||SEP_RE.test(line)) return;
+    var b=parseBed(line);
+    if(b){
+      if(!cur){ warnings.push(line); return; }
+      add(cur,b.room,b.bed,b.name,false); return;
+    }
+    if(WARD_RE.test(line)){ cur=ward(line); return; }
+    if(!cur) return;
+    var pp=/^(.+?)\s*\|\s*(.*)$/.exec(line);
+    if(pp){ add(cur,pp[1].trim(),'',pp[2].trim(),true); return; }
+    var m=SPECIAL_RE.exec(line);
+    if(m) add(cur,m[1],'',m[2],true); else warnings.push(line);
+  });
+  wards=wards.filter(function(w){ return patients.some(function(p){ return p.wkey===w.key; }); });
+  return {patients:patients,wards:wards,warnings:warnings};
+}
+
+function mergeManual(model,manual){
+  (manual||[]).forEach(function(m){
+    var k=norm(m.ward), w=null, i;
+    for(i=0;i<model.wards.length;i++) if(model.wards[i].key===k) w=model.wards[i];
+    if(!w){ w={label:m.ward,key:k}; model.wards.push(w); }
+    var hit=null;
+    model.patients.forEach(function(p){ if(p.wkey===k&&p.room===m.room&&p.bed===(m.bed||'')) hit=p; });
+    if(hit){
+      if(!hit.name){ hit.name=m.name; hit.manual=true; hit.id=mkId(hit); }
+    } else {
+      var p={ward:w.label,wkey:k,room:m.room,bed:m.bed||'',name:m.name,special:!m.bed,manual:true};
+      p.id=mkId(p); model.patients.push(p);
+    }
+  });
+  var order={};
+  model.wards.forEach(function(w,i){ order[w.key]=i; });
+  model.patients.forEach(function(p,i){ p._o=i; });
+  model.patients.sort(function(a,b){
+    if(order[a.wkey]!==order[b.wkey]) return order[a.wkey]-order[b.wkey];
+    if(a.special!==b.special) return a.special?1:-1;
+    if(a.special) return a._o-b._o;
+    var ra=parseInt(a.room,10), rb=parseInt(b.room,10);
+    if(ra!==rb) return ra-rb;
+    return a.bed<b.bed?-1:(a.bed>b.bed?1:0);
+  });
+}
+
+function parseSectionHeader(line){
+  if(line.indexOf('_')<0 || !/^[*_]/.test(line)) return null;
+  var m=/^[*_\s]+([^*_]+?)[*_]+\s*(.*)$/.exec(line);
+  if(!m) return null;
+  var title=m[1].replace(/[^\p{L}\p{N}\s\/&().,+-]/gu,'').replace(/\s+/g,' ').trim();
+  if(!title) return null;
+  return {title:title,hint:m[2].trim(),raw:line};
+}
+function parseWardLine(line){
+  var t=clean(line);
+  if(!t||parseBed(t)) return null;
+  if(/^\*[^*_]+\*$/.test(line)||WARD_RE.test(t)) return t;
+  return null;
+}
+function parseProgram(text){
+  var pre=[], sections=[], entries=[], cur=null, curWard=null, used={};
+  String(text||'').split(/\r?\n/).forEach(function(raw){
+    var line=raw.trim();
+    if(!line||SEP_RE.test(line)) return;
+    var sh=parseSectionHeader(line);
+    if(sh){
+      var base=slug(sh.title)||'program', id=base, n=2;
+      while(used[id]){ id=base+'-'+n; n++; }
+      used[id]=1;
+      cur={id:id,title:sh.title,hint:sh.hint,raw:sh.raw,wards:[]};
+      sections.push(cur); curWard=null; return;
+    }
+    if(!cur){ pre.push(line); return; }
+    var wl=parseWardLine(line);
+    if(wl){ curWard={raw:line,label:wl,key:norm(wl)}; cur.wards.push(curWard); return; }
+    entries.push({sec:cur.id,ward:curWard?curWard.label:'',line:line});
+  });
+  return {pre:pre,sections:sections,entries:entries};
+}
+
+function restoreEntries(entries,patients,dpmap){
+  var assign={}, ok=0, bad=0;
+  entries.forEach(function(e){
+    var line=clean(e.line), b=parseBed(line), p=null, rest='', c;
+    if(b){
+      c=patients.filter(function(x){ return !x.special&&x.room===b.room&&x.bed===b.bed&&(!e.ward||wardMatch(x.ward,e.ward)); });
+      if(c.length===1){ p=c[0]; rest=b.name; }
+    } else {
+      var low=line.toLowerCase();
+      c=patients.filter(function(x){ return x.special&&low.indexOf(x.room.toLowerCase())===0&&(!e.ward||wardMatch(x.ward,e.ward)); });
+      if(c.length===1){ p=c[0]; rest=line.slice(p.room.length).trim(); }
+    }
+    if(!p||!p.name){ bad++; return; }
+    var note=rest;
+    if(rest.toLowerCase().indexOf(p.name.toLowerCase())===0) note=rest.slice(p.name.length);
+    var dps=dpmap&&dpmap[p.id];
+    if(dps){
+      var tt=note.replace(/^\s+/,'');
+      if(tt.toLowerCase().indexOf('('+dps.toLowerCase()+')')===0) note=tt.slice(dps.length+2);
+    }
+    note=note.replace(/^[\s\-–—:,(]+/,'').replace(/[\s)]+$/,'');
+    if(!has(assign,p.id)) assign[p.id]={};
+    assign[p.id][e.sec]=note; ok++;
+  });
+  return {assign:assign,ok:ok,bad:bad};
+}
+
+function fmtEntry(p,note,dp){
+  var s=p.special?(p.room+' '+p.name):(p.room+' '+p.bed+(p.name?' '+p.name:''));
+  s=s.trim();
+  if(dp) s+=' ('+dp+')';
+  if(note&&String(note).trim()) s+=' - '+String(note).trim();
+  return s;
+}
+
+function buildOutput(M,opt){
+  var out=[], assign=M.assign||{};
+  (M.pre||[]).forEach(function(l){ out.push(l); });
+  if(M.pre&&M.pre.length) out.push('');
+  M.sections.forEach(function(sec){
+    var picked=M.patients.filter(function(p){ return has(assign[p.id],sec.id); });
+    var used={}, blocks=[], labels=[];
+    sec.wards.forEach(function(t){
+      var list=picked.filter(function(p){ return wardMatch(p.ward,t.label); });
+      list.forEach(function(p){ used[p.id]=1; });
+      blocks.push({raw:t.raw,list:list});
+    });
+    picked.forEach(function(p){ if(!used[p.id]&&labels.indexOf(p.ward)<0) labels.push(p.ward); });
+    labels.forEach(function(l){
+      blocks.push({raw:'*'+l+'*',list:picked.filter(function(p){ return !used[p.id]&&p.ward===l; })});
+    });
+    out.push(sec.raw);
+    var shown=0;
+    blocks.forEach(function(b){
+      if(opt&&opt.hideEmpty&&!b.list.length) return;
+      out.push(b.raw);
+      b.list.forEach(function(p){ out.push(fmtEntry(p,assign[p.id][sec.id],(opt&&opt.withDp&&M.dp)?M.dp[p.id]:'')); });
+      out.push(''); shown++;
+    });
+    if(!shown) out.push('');
+  });
+  return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+function splitDp(s){
+  s=String(s==null?'':s); var i=s.indexOf('/');
+  return i<0?{name:s.trim(),dp:''}:{name:s.slice(0,i).trim(),dp:s.slice(i+1).trim()};
+}
+var DP_ALIAS={
+  nefro:'Nefrologi',nefrologi:'Nefrologi',nephro:'Nefrologi',
+  ho:'Hemato Onkologi',hemato:'Hemato Onkologi',onko:'Hemato Onkologi',
+  gh:'Gastroentero Hepatologi',gastro:'Gastroentero Hepatologi',gastroentero:'Gastroentero Hepatologi',hepato:'Gastroentero Hepatologi',
+  neuro:'Neurologi',neurologi:'Neurologi',
+  ai:'Alergi Imunologi',alergi:'Alergi Imunologi',imun:'Alergi Imunologi',imunologi:'Alergi Imunologi',
+  cardio:'Kardiologi',kardio:'Kardiologi',kardiologi:'Kardiologi',
+  endo:'Endokrinologi',endokrin:'Endokrinologi',endokrinologi:'Endokrinologi',
+  resp:'Respirologi',respi:'Respirologi',respirologi:'Respirologi',
+  eria:'ERIA',etia:'ERIA',
+  npm:'Nutrisi Penyakit Metabolik',nutrisi:'Nutrisi Penyakit Metabolik',
+  neo:'Neonatologi',neonatologi:'Neonatologi',
+  infeksi:'Infeksi Tropik',tropik:'Infeksi Tropik',itd:'Infeksi Tropik'
+};
+function dpTokMatch(t,short,minLen){
+  var names=norm(short).split(' ').filter(function(n){ return n&&n!=='dr'&&n!=='h'; });
+  return names.some(function(n){
+    if(t.length>=minLen&&n.indexOf(t)===0) return true;
+    var cp=0; while(cp<t.length&&cp<n.length&&t.charAt(cp)===n.charAt(cp)) cp++;
+    if(cp>=3&&cp>=t.length-1) return true;
+    if(t.length>=(minLen<2?2:3)&&t.charAt(0)===n.charAt(0)){
+      var j=0; for(var k=0;k<n.length&&j<t.length;k++) if(n.charAt(k)===t.charAt(j)) j++;
+      return j===t.length;
+    }
+    return false;
+  });
+}
+function matchDp(text,docs){
+  var toks=norm(text).split(' ').filter(Boolean), group='', rest=[];
+  if(!toks.length) return {id:'',status:'empty',group:''};
+  toks.forEach(function(t){
+    if(has(DP_ALIAS,t)){ if(!group) group=DP_ALIAS[t]; }
+    else if(t!=='dr'&&t!=='drg'&&t!=='dokter'&&t!=='h'&&!/^\d+$/.test(t)) rest.push(t);
+  });
+  var pool=group?docs.filter(function(d){ return d.group===group; }):docs;
+  if(rest.length){
+    var minLen=group?1:2;
+    var hit=pool.filter(function(d){ return rest.every(function(t){ return dpTokMatch(t,d.short,minLen); }); });
+    if(hit.length===1) return {id:hit[0].id,status:'ok',group:hit[0].group};
+    if(hit.length>1) return {id:'',status:'ambiguous',group:group};
+  }
+  if(group&&pool.length===1) return {id:pool[0].id,status:'ok',group:group};
+  if(group) return {id:'',status:'group',group:group};
+  return {id:'',status:'none',group:''};
+}
+function serializePatients(wards,patients){
+  var out=[];
+  wards.forEach(function(w){
+    var list=patients.filter(function(p){ return p.wkey===w.key; });
+    if(!list.length) return;
+    out.push(w.label); out.push('');
+    var last=null;
+    list.forEach(function(p){
+      var key=p.special?'~'+p.room:p.room;
+      if(last!==null&&last!==key) out.push('');
+      last=key;
+      out.push(p.special?(p.room+' | '+p.name).trim():(p.room+' '+p.bed+(p.name?' '+p.name:'')));
+    });
+    out.push('');
+  });
+  return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+// ==LOGIC END==
+
+var $=function(s){ return document.querySelector(s); };
+var $$=function(s){ return Array.prototype.slice.call(document.querySelectorAll(s)); };
+function esc(s){
+  return String(s==null?'':s).replace(/[&<>"']/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+var KEY='mapping-operan-jaga-v1';
+var S={patientsRaw:'',programRaw:'',manual:[],assign:{},dpjp:{},withDp:true,sample:false,showEmpty:false,hideEmpty:false,
+       patients:[],wards:[],pwarn:[],pre:[],sections:[],entries:[]};
+var ui={tab:'prog',sec:0,qProg:'',qPat:'',flt:'all',open:'',more:false,notes:false,addOpen:false,
+        pillsKey:'',armBtn:null,timer:0,saveT:0,msgProg:'',dpOk:0,dpBad:[],wardClosed:{},pasteOpen:false};
+
+var SAMPLE_PROGRAM=[
+'Program Jaga Jumat Malam 8/10/2026*','',
+'*_🌞Pengawasan🌞_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_Pasien Baru_*','',
+'_*Toleransi Operasi*_ reng, lapor, advice','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_Lapor_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_Lacak_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_Lab / Penunjang lainnya_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_GDS_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_Nebu_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_Tranfusi_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_Chemoterapi_*','*Tulip*','',
+'*_Puasa_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_BLPL_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*','',
+'*_Lain-lain_*','*Flamboyan 9*','','*Flamboyan 6*','','*Tulip*'
+].join('\n');
+
+var START_PATIENTS=[
+'Flamboyan 9','','901 A','901 B','901 C','901 D','','902 A','902 B','902 C','902 D','','903 A','903 B','903 C','903 D','','904 A','904 B','904 C','904 D','','905 A','905 B','905 C','905 D','','906 A','906 B','906 C','906 D','','907 A','907 B','907 C','907 D','','908 A','908 B','908 C','908 D','','909 A','909 B','909 C','909 D','','910 A','910 B','910 C','910 D','','911 A','911 B','911 C','911 D','','912 A','912 B','912 C','912 D','','913 A','913 B','913 C','913 D','','914 A','914 B','914 C','914 D','','915 A','915 B','915 C','915 D','','916 A','916 B','916 C','916 D','','917 A','917 B','917 C','917 D','','918 A','918 B','918 C','918 D','','Flamboyan 6','','601 A','601 B','','602 A','602 B','','603 A','603 B','','604 A','604 B','604 C','','605 A','605 B','605 C','','606 A','606 B','','607 A','607 B','','608 A','608 B','','609 A','609 B','','610 A','610 B','','611 A','611 B','611 C','','Tulip 6','','601 A','601 B','','602 A','602 B','','603 A','603 B','','604 A','604 B','','605 A','605 B','','606 A','606 B','','607 A','607 B','','608 A','608 B','','609 A','609 B','','610 A','610 B','','611 A','611 B','','612 A','612 B','','615 A','615 B','','616 A','616 B','616 C','','Cendana','','VIP Cendana III |','VVIP Cendana II |'
+].join('\n');
+
+var DPJP=[
+['Nutrisi Penyakit Metabolik',['dr. Sandi Nugraha, Sp.A, Subsp.NPM(K), M.Biomed','dr. Pridania Vidya, Sp.A']],
+['Nefrologi',['dr. Agustina Wulandari, Sp.A, Subsp.Nefro(K), M.Kes']],
+['Gastroentero Hepatologi',['dr. Evi Rokhayati, Sp.A, Subsp.GH(K), M.Kes','dr. Rekno Widati, Sp.A, Subsp. GH (K)']],
+['Endokrinologi',['Dr. dr. Annang Giri Moelyo, Sp.A, Subsp.Endo(K), M.Kes','dr. Hanum Ferdian, Sp.A']],
+['Respirologi',['Dr. dr. Ismiranti Andarini, Sp.A, M.Kes','dr. David Anggara Putra, Sp.A, M.H']],
+['Hemato Onkologi',['Dr. dr. Muhammad Riza, Sp.A, Subsp.HO(K), M.Kes','dr. Septin Widiretnani, Sp.A, Subsp.HO(K), M.Kes','dr. Irfan Dzakhir Nugroho, Sp.A, Subsp.HO(K), M.Biomed']],
+['ERIA',['dr. Pudjiastuti, Sp.A, Subsp.ETIA(K)','dr. Sri Martuti, Sp.A, Subsp.ETIA(K), M.Kes','dr. Sari Dwi Jayanti, Sp.A']],
+['Kardiologi',['Dr. dr. Sri Lilijanti Widjaja, Sp.A, Subsp.Kardio(K)','dr. Bagus Artiko, Sp.A, Subsp.Kardio(K), M.Kes','dr. Mas Ayu Lubna Anniazi, Sp.A, Subsp.Kardio(K)']],
+['Infeksi Tropik',['dr. H. Rustam Siregar, Sp.A','dr. Husnia Auliyatul Umma, Sp.A, M.Kes','dr. Muhammad Ibrahim P., Sp.A']],
+['Neonatologi',['dr. Yulidar Hafidh, Sp.A(K)','Dr. dr. Dwi Hidayah, Sp.A, Subsp.Neo(K), M.Kes','dr. Andhika Trisna Putra, Sp.A, Subsp.Neo(K), M.Biomed','dr. Damayanti Ika P, Sp. A']],
+['Neurologi',['dr. Mustarsid, Sp.A(K)','Dr. dr. Fadhilah Tia Nur, Sp.A, Subsp.Neuro(K), M.Kes']],
+['Alergi Imunologi',['dr. Ganung Harsono, Sp.A(K)','dr. Diah Lintang Kawuryan, Sp.A, Subsp.AI(K), M.Kes','dr. Pitra Sekarhandni, Sp.A']]
+];
+var DP_BY_ID={}, DP_OPTS='', DP_LIST=[];
+DPJP.forEach(function(g){
+  DP_OPTS+='<optgroup label="'+esc(g[0])+'">';
+  g[1].forEach(function(full,i){
+    var id=slug(g[0])+'-'+(i+1);
+    DP_BY_ID[id]={full:full,short:full.split(',')[0].trim(),group:g[0]};
+    DP_LIST.push({id:id,short:DP_BY_ID[id].short,group:g[0]});
+    DP_OPTS+='<option value="'+id+'">'+esc(DP_BY_ID[id].short)+'</option>';
+  });
+  DP_OPTS+='</optgroup>';
+});
+function dpShort(pid){ var d=DP_BY_ID[S.dpjp[pid]]; return d?d.short:''; }
+function dpMap(){ var m={}; Object.keys(S.dpjp).forEach(function(k){ var s=dpShort(k); if(s) m[k]=s; }); return m; }
+function importDp(){
+  var n=0,bad=[];
+  S.patients.forEach(function(p){
+    if(!p.name||!p.dp) return;
+    var r=matchDp(p.dp,DP_LIST);
+    if(r.id){ S.dpjp[p.id]=r.id; n++; }
+    else bad.push({id:p.id,t:p.ward+' '+code(p)+' '+p.name+' ('+p.dp+')'});
+  });
+  ui.dpOk=n; ui.dpBad=bad;
+  if(n||bad.length) syncRaw();
+  return n;
+}
+function dpSelect(pid,attrs){
+  var v=S.dpjp[pid]||'', o=DP_OPTS;
+  if(v&&DP_BY_ID[v]) o=o.replace('value="'+v+'"','value="'+v+'" selected');
+  return '<select '+attrs+' aria-label="DPJP"'+(v?' class="filled"':'')+'><option value="">DPJP</option>'+o+'</select>';
+}
+function code(p){ return p.special?p.room:(p.room+' '+p.bed); }
+function anyA(p){ var a=S.assign[p.id]; return !!a&&Object.keys(a).length>0; }
+function isOcc(p){ return !!p.name||anyA(p); }
+function countSec(id){ var n=0; S.patients.forEach(function(p){ if(has(S.assign[p.id],id)) n++; }); return n; }
+function wardIdx(w){ for(var i=0;i<S.wards.length;i++) if(S.wards[i]===w) return i; return 0; }
+function findP(ward,room,bed){
+  var k=norm(ward), r=null;
+  S.patients.forEach(function(p){ if(p.wkey===k&&p.room===room&&p.bed===bed) r=p; });
+  return r;
+}
+
+function prune(){
+  var pid={}, sid={};
+  S.patients.forEach(function(p){ pid[p.id]=1; });
+  S.sections.forEach(function(s){ sid[s.id]=1; });
+  Object.keys(S.assign).forEach(function(k){
+    if(!pid[k]){ delete S.assign[k]; return; }
+    Object.keys(S.assign[k]).forEach(function(s){ if(!sid[s]) delete S.assign[k][s]; });
+    if(!Object.keys(S.assign[k]).length) delete S.assign[k];
+  });
+  Object.keys(S.dpjp).forEach(function(k){ if(!pid[k]) delete S.dpjp[k]; });
+}
+function rebuild(){
+  var pm=parsePatients(S.patientsRaw);
+  mergeManual(pm,S.manual);
+  S.patients=pm.patients; S.wards=pm.wards; S.pwarn=pm.warnings;
+  var pg=parseProgram(S.programRaw);
+  S.pre=pg.pre; S.sections=pg.sections; S.entries=pg.entries;
+  prune();
+  if(ui.sec>=S.sections.length) ui.sec=Math.max(0,S.sections.length-1);
+  if(ui.open&&!S.patients.some(function(p){ return p.id===ui.open; })) ui.open='';
+}
+
+function save(){
+  try{
+    localStorage.setItem(KEY,JSON.stringify({pt:S.patientsRaw,pg:S.programRaw,manual:S.manual,assign:S.assign,dpjp:S.dpjp,withDp:S.withDp,
+      sample:S.sample,showEmpty:S.showEmpty,hideEmpty:S.hideEmpty}));
+  }catch(e){}
+}
+function saveSoon(){ clearTimeout(ui.saveT); ui.saveT=setTimeout(save,300); }
+function load(){
+  try{ var j=localStorage.getItem(KEY); return j?JSON.parse(j):null; }catch(e){ return null; }
+}
+
+function loadSample(){
+  S.patientsRaw=START_PATIENTS; S.programRaw=SAMPLE_PROGRAM; S.manual=[]; S.assign={}; S.dpjp={}; S.sample=false;
+  ui.sec=0; ui.open=''; ui.msgProg=''; ui.dpOk=0; ui.dpBad=[];
+  rebuild();
+  importDp();
+}
+
+/* ---------- render ---------- */
+function renderHeader(){
+  var occ=S.patients.filter(isOcc), done=occ.filter(anyA);
+  var pct=occ.length?Math.round(done.length/occ.length*100):0;
+  $('#prog-fill').style.width=pct+'%';
+  $('#bar').setAttribute('aria-valuenow',String(pct));
+  $('#prog-text').textContent=done.length+' dari '+occ.length+' pasien sudah punya program';
+  $('#when').textContent=(S.pre[0]||'').replace(/[*_]/g,'').replace(/^\s*program\s+jaga\s*/i,'').trim();
+  $('#sample').hidden=!S.sample||ui.tab==='data';
+}
+
+function renderDataSum(){
+  var named=S.patients.filter(function(p){ return !!p.name; }).length;
+  $('#sum-pat').textContent=S.wards.length+' ruangan, '+S.patients.length+' bed, '+named+' pasien bernama terbaca.'+(ui.dpOk?' '+ui.dpOk+' DPJP terisi otomatis.':'');
+  $('#warn-pat').innerHTML=S.pwarn.length?
+    '<div class="warnbox"><b>'+S.pwarn.length+' baris tidak terbaca</b><ul>'+
+    S.pwarn.slice(0,6).map(function(w){ return '<li>'+esc(w)+'</li>'; }).join('')+'</ul></div>':''
+  var left=ui.dpBad.filter(function(b){ return !S.dpjp[b.id]; });
+  if(left.length) $('#warn-pat').innerHTML+='<div class="warnbox"><b>'+left.length+' DPJP belum bisa dipastikan, pilih manual</b><ul>'+
+    left.slice(0,12).map(function(b){ return '<li>'+esc(b.t)+'</li>'; }).join('')+'</ul></div>';
+}
+function syncRaw(){ S.patientsRaw=serializePatients(S.wards,S.patients); S.manual=[]; }
+function cell(p,i){
+  return '<div class="bedcell'+(p.name?' filled':'')+(p.special?' wide':'')+'"><label class="bc" for="bed'+i+'">'+esc(code(p))+'</label>'+
+    '<input type="text" id="bed'+i+'" data-act="pname" data-p="'+i+'" value="'+esc(p.name)+'" placeholder="Nama" autocomplete="off" autocapitalize="words" enterkeyhint="next" aria-label="Nama pasien '+esc(code(p))+'">'+
+    dpSelect(p.id,'id="dp'+i+'" data-act="pdpjp" data-p="'+i+'"')+'</div>';
+}
+function renderPatEdit(){
+  var box=$('#pat-edit'), html='';
+  if(!S.patients.length){
+    box.innerHTML='<p class="empty">Belum ada pasien. Tempel daftar di bagian bawah.</p>';
+  } else {
+    S.wards.forEach(function(w){
+      var open=!ui.wardClosed[w.key], cells=[], named=0, tot=0;
+      S.patients.forEach(function(p,i){
+        if(p.wkey!==w.key) return;
+        tot++; if(p.name) named++;
+        if(open) cells.push(cell(p,i));
+      });
+      html+='<section class="ward"><button type="button" class="fold wfold" data-act="wfold" data-k="'+esc(w.key)+'" data-fk="wf'+wardIdx(w)+'" aria-expanded="'+open+'">'+
+        '<span class="wl"><i class="dot" style="background:var(--w'+(wardIdx(w)%6)+')"></i>'+esc(w.label)+'</span><span class="n" data-wc="'+esc(w.key)+'">'+named+' / '+tot+'</span></button>'+
+        (open?'<div class="bedgrid">'+cells.join('')+'</div>':'')+'</section>';
+    });
+    box.innerHTML=html;
+  }
+  $('#paste-box').hidden=!ui.pasteOpen;
+  $('#paste-toggle').setAttribute('aria-expanded',String(ui.pasteOpen));
+}
+function updateWardCount(p){
+  var el=document.querySelector('[data-wc="'+p.wkey+'"]');
+  if(!el) return;
+  var tot=0, named=0;
+  S.patients.forEach(function(q){ if(q.wkey===p.wkey){ tot++; if(q.name) named++; } });
+  el.textContent=named+' / '+tot;
+}
+function editName(i,val){
+  var p=S.patients[i]; if(!p) return;
+  var old=p.id;
+  p.name=clean(String(val).replace(/\|/g,' '));
+  p.id=mkId(p);
+  if(p.id!==old){
+    if(S.assign[old]){ S.assign[p.id]=S.assign[old]; delete S.assign[old]; }
+    if(S.dpjp[old]){ S.dpjp[p.id]=S.dpjp[old]; delete S.dpjp[old]; }
+    if(ui.open===old) ui.open=p.id;
+  }
+  syncRaw(); saveSoon();
+  updateWardCount(p); renderHeader(); renderDataSum();
+}
+function renderData(){
+  renderDataSum();
+  if(ui.tab==='data') renderPatEdit();
+  var sum=S.sections.length+' program terbaca.';
+  if(ui.msgProg) sum+=' '+ui.msgProg;
+  $('#sum-prog').textContent=sum;
+  var miss=[];
+  S.sections.forEach(function(s){
+    s.wards.forEach(function(t){
+      if(!S.wards.some(function(w){ return wardMatch(w.label,t.label); })&&miss.indexOf(t.label)<0) miss.push(t.label);
+    });
+  });
+  $('#warn-prog').innerHTML=miss.length?
+    '<div class="warnbox">Ruangan di program yang tidak ada di daftar pasien: '+esc(miss.join(', '))+'</div>':'';
+}
+
+function renderPills(){
+  var key=S.sections.map(function(s){ return s.id; }).join(',');
+  var box=$('#sec-pills');
+  if(key!==ui.pillsKey){
+    ui.pillsKey=key;
+    box.innerHTML=S.sections.map(function(s,i){
+      return '<button type="button" class="pill" data-act="sec" data-i="'+i+'" data-fk="sec'+i+'">'+esc(s.title)+'<span class="n"></span></button>';
+    }).join('');
+  }
+  $$('#sec-pills .pill').forEach(function(b,i){
+    var s=S.sections[i]; if(!s) return;
+    b.classList.toggle('on',i===ui.sec);
+    b.setAttribute('aria-pressed',String(i===ui.sec));
+    b.querySelector('.n').textContent=String(countSec(s.id));
+  });
+}
+function scrollPill(){
+  var el=$('#sec-pills .pill.on');
+  if(el&&el.scrollIntoView){ try{ el.scrollIntoView({inline:'center',block:'nearest'}); }catch(e){} }
+}
+
+function renderSecHead(){
+  var sec=S.sections[ui.sec], box=$('#sec-head');
+  if(!sec){ box.innerHTML='<p class="empty">Belum ada program. Tempel template program di tab Data.</p>'; return; }
+  var t=sec.wards.length?' · template: '+esc(sec.wards.map(function(w){ return w.label; }).join(', ')):'';
+  box.innerHTML='<h2>'+esc(sec.title)+'</h2>'+
+    (sec.hint?'<p class="hint">Catatan di template: '+esc(sec.hint)+'</p>':'')+
+    '<p class="sub">'+countSec(sec.id)+' pasien terpilih'+t+'</p>';
+}
+
+function vis(p,q){
+  if(!p.name&&!S.showEmpty&&!anyA(p)) return false;
+  if(!q) return true;
+  var hay=(p.room+' '+p.bed+' '+p.room+p.bed+' '+p.name+' '+p.ward).toLowerCase();
+  return hay.indexOf(q)>=0;
+}
+function chipHtml(p,i,on){
+  return '<button type="button" class="chip'+(on?' on':'')+(p.name?'':' empty')+'" aria-pressed="'+on+'" data-act="tog" data-p="'+i+'" data-fk="c'+i+'">'+
+    '<span class="code">'+esc(code(p))+'</span><span class="nm">'+esc(p.name||'(tanpa nama)')+'</span></button>';
+}
+function wardBlock(w,sec,q){
+  var chips=[], sel=0, tot=0;
+  S.patients.forEach(function(p,i){
+    if(p.wkey!==w.key||!vis(p,q)) return;
+    var on=has(S.assign[p.id],sec.id);
+    if(on) sel++;
+    tot++; chips.push(chipHtml(p,i,on));
+  });
+  if(!tot&&q) return '';
+  return '<section class="ward"><header><i class="dot" style="background:var(--w'+(wardIdx(w)%6)+')"></i><h3>'+esc(w.label)+'</h3><span class="cnt">'+sel+' / '+tot+'</span></header>'+
+    (tot?'<div class="chips">'+chips.join('')+'</div>':'<p class="sub">Belum ada pasien bernama di ruangan ini.</p>')+'</section>';
+}
+function renderWards(){
+  var sec=S.sections[ui.sec], box=$('#sec-wards');
+  if(!sec||!S.patients.length){
+    box.innerHTML=S.patients.length?'':'<p class="empty">Belum ada pasien. Tempel daftar pasien di tab Data.</p>';
+    return;
+  }
+  var q=ui.qProg.trim().toLowerCase(), main=[], more=[], tw=sec.wards;
+  S.wards.forEach(function(w){
+    var ok=!tw.length||tw.some(function(t){ return wardMatch(w.label,t.label); });
+    (ok?main:more).push(w);
+  });
+  var html=main.map(function(w){ return wardBlock(w,sec,q); }).join('');
+  if(more.length){
+    var n=0;
+    S.patients.forEach(function(p){ if(more.some(function(w){ return w.key===p.wkey; })&&has(S.assign[p.id],sec.id)) n++; });
+    html+='<button type="button" class="fold" data-act="more" aria-expanded="'+ui.more+'" data-fk="more"><span>Ruangan di luar template: '+esc(more.map(function(w){ return w.label; }).join(', '))+'</span><span class="n">'+n+'</span></button>';
+    if(ui.more) html+=more.map(function(w){ return wardBlock(w,sec,q); }).join('');
+  }
+  box.innerHTML=html;
+}
+function renderNotes(){
+  var sec=S.sections[ui.sec], box=$('#sec-notes');
+  if(!sec){ box.innerHTML=''; return; }
+  var rows=[];
+  S.patients.forEach(function(p,i){
+    if(!has(S.assign[p.id],sec.id)) return;
+    rows.push('<label class="noterow" for="n'+i+'_'+ui.sec+'"><span class="who"><span class="code">'+esc(code(p))+'</span><span class="nm">'+esc(p.name)+'</span></span>'+
+      '<input type="text" id="n'+i+'_'+ui.sec+'" data-act="note" data-p="'+i+'" data-s="'+ui.sec+'" value="'+esc(S.assign[p.id][sec.id])+'" placeholder="keterangan, mis. 06.00" autocomplete="off"></label>');
+  });
+  box.innerHTML='<button type="button" class="fold" data-act="notes" aria-expanded="'+ui.notes+'" data-fk="notes"><span>Catatan per pasien</span><span class="n">'+rows.length+'</span></button>'+
+    (ui.notes?(rows.length?rows.join(''):'<p class="sub" style="margin-top:10px">Pilih pasien dulu, lalu tambahkan catatan di sini.</p>'):'');
+}
+
+function patRow(p,i){
+  var open=ui.open===p.id, a=S.assign[p.id]||{};
+  var keys=S.sections.filter(function(s){ return has(a,s.id); });
+  var tags=keys.length?
+    keys.slice(0,2).map(function(s){ return '<span class="tag">'+esc(s.title)+'</span>'; }).join('')+(keys.length>2?'<span class="tag">+'+(keys.length-2)+'</span>':''):
+    '<span class="tag none">belum ada program</span>';
+  var dpTag=dpShort(p.id)?'<span class="dpt">'+esc(dpShort(p.id))+'</span>':'';
+  var h='<div class="prow'+(open?' open':'')+'"><button type="button" class="prow-h" data-act="open" data-p="'+i+'" data-fk="r'+i+'" aria-expanded="'+open+'">'+
+    '<span class="code">'+esc(code(p))+'</span><span class="nm">'+esc(p.name||'(tanpa nama)')+'</span><span class="chev"></span><span class="tags">'+dpTag+tags+'</span></button>';
+  if(open){
+    h+='<div class="panel"><div class="dprow"><label class="lbl" for="pd'+i+'">DPJP</label>'+dpSelect(p.id,'id="pd'+i+'" data-act="pdpjp" data-p="'+i+'" data-r="1"')+'</div><p class="help">Ketuk program untuk pasien ini. Garis putus berarti ruangannya tidak ada di template program itu, jadi akan ditambahkan di akhir.</p><div class="pgrid">';
+    S.sections.forEach(function(s,si){
+      var on=has(a,s.id), ok=!s.wards.length||s.wards.some(function(t){ return wardMatch(p.ward,t.label); });
+      h+='<button type="button" class="pill'+(on?' on':'')+(ok?'':' off')+'" aria-pressed="'+on+'" data-act="ptog" data-p="'+i+'" data-s="'+si+'" data-fk="pp'+i+'_'+si+'">'+esc(s.title)+'</button>';
+    });
+    h+='</div>';
+    S.sections.forEach(function(s,si){
+      if(!has(a,s.id)) return;
+      h+='<label class="noterow" for="pn'+i+'_'+si+'"><span class="who"><span class="nm">'+esc(s.title)+'</span></span>'+
+        '<input type="text" id="pn'+i+'_'+si+'" data-act="note" data-p="'+i+'" data-s="'+si+'" value="'+esc(a[s.id])+'" placeholder="keterangan, mis. 06.00" autocomplete="off"></label>';
+    });
+    h+='</div>';
+  }
+  return h+'</div>';
+}
+function renderPatList(){
+  var q=ui.qPat.trim().toLowerCase(), html='';
+  $$('[data-act="flt"]').forEach(function(b){
+    var on=b.getAttribute('data-v')===ui.flt;
+    b.classList.toggle('on',on); b.setAttribute('aria-pressed',String(on));
+  });
+  S.wards.forEach(function(w){
+    var rows=[];
+    S.patients.forEach(function(p,i){
+      if(p.wkey!==w.key||!vis(p,q)) return;
+      var any=anyA(p);
+      if(ui.flt==='none'&&any) return;
+      if(ui.flt==='some'&&!any) return;
+      rows.push(patRow(p,i));
+    });
+    if(!rows.length) return;
+    html+='<section class="ward"><header><i class="dot" style="background:var(--w'+(wardIdx(w)%6)+')"></i><h3>'+esc(w.label)+'</h3><span class="cnt">'+rows.length+'</span></header>'+rows.join('')+'</section>';
+  });
+  $('#pat-list').innerHTML=html||'<p class="empty">'+(S.patients.length?'Tidak ada pasien yang cocok.':'Belum ada pasien. Tempel daftar pasien di tab Data.')+'</p>';
+}
+function renderAdd(){
+  var sel=$('#add-ward'), cur=sel.value;
+  sel.innerHTML=S.wards.map(function(w){ return '<option value="'+esc(w.label)+'">'+esc(w.label)+'</option>'; }).join('');
+  if(cur&&S.wards.some(function(w){ return w.label===cur; })) sel.value=cur;
+  $('#add-form').hidden=!ui.addOpen;
+  $('#add-toggle').setAttribute('aria-expanded',String(ui.addOpen));
+}
+
+function renderOut(){
+  var model={pre:S.pre,sections:S.sections,patients:S.patients,assign:S.assign,dp:dpMap()};
+  var o=$('#out');
+  o.value=buildOutput(model,{hideEmpty:S.hideEmpty,withDp:S.withDp});
+  var picked=S.patients.filter(anyA).length, entries=0;
+  Object.keys(S.assign).forEach(function(k){ entries+=Object.keys(S.assign[k]).length; });
+  $('#out-sum').textContent=picked+' pasien, '+entries+' isian program.';
+  var orph=S.patients.filter(function(p){ return isOcc(p)&&!anyA(p); });
+  $('#orph-sum').textContent='Pasien tanpa program ('+orph.length+')';
+  var h='';
+  S.wards.forEach(function(w){
+    var l=orph.filter(function(p){ return p.wkey===w.key; });
+    if(!l.length) return;
+    h+='<div class="orph-w"><b>'+esc(w.label)+'</b>'+l.map(function(p){ return '<span class="tag plain">'+esc(code(p)+' '+p.name)+'</span>'; }).join('')+'</div>';
+  });
+  $('#orph-body').innerHTML=h||'<p class="sub">Semua pasien sudah punya program.</p>';
+  if(!$('#v-out').hidden){
+    o.style.height='auto';
+    o.style.height=Math.min(Math.max(o.scrollHeight+4,280),Math.round(window.innerHeight*0.62))+'px';
+  }
+}
+
+function renderAll(){
+  $('#cb-empty-prog').checked=S.showEmpty;
+  $('#cb-empty-pat').checked=S.showEmpty;
+  $('#cb-hide').checked=S.hideEmpty;
+  $('#cb-dp').checked=S.withDp;
+  renderHeader(); renderData(); renderPills(); renderSecHead(); renderWards(); renderNotes();
+  renderPatList(); renderAdd(); renderOut();
+}
+function rerender(){
+  var a=document.activeElement, fk=a&&a.getAttribute?a.getAttribute('data-fk'):null;
+  renderAll();
+  if(fk){
+    var el=document.querySelector('[data-fk="'+fk+'"]');
+    if(el&&el!==document.activeElement){ try{ el.focus({preventScroll:true}); }catch(e){} }
+  }
+}
+
+function showTab(t){
+  ui.tab=t;
+  ['data','prog','pat','out'].forEach(function(n){ $('#v-'+n).hidden=(n!==t); });
+  $$('.nav button').forEach(function(b){
+    if(b.getAttribute('data-t')===t) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
+  });
+  renderAll();
+  window.scrollTo(0,0);
+  if(t==='prog') scrollPill();
+}
+
+/* ---------- actions ---------- */
+function toggle(p,sec){
+  if(!p||!sec) return;
+  var a=S.assign[p.id]||(S.assign[p.id]={});
+  if(has(a,sec.id)) delete a[sec.id]; else a[sec.id]='';
+  if(!Object.keys(a).length) delete S.assign[p.id];
+  saveSoon();
+}
+function fillTextareas(){ $('#ta-pat').value=S.patientsRaw; $('#ta-prog').value=S.programRaw; }
+function readPatients(){
+  var v=$('#ta-pat').value;
+  if(norm(v)!==norm(S.patientsRaw)) S.manual=[];
+  S.patientsRaw=v; S.sample=false; ui.pasteOpen=false; ui.dpOk=0; ui.dpBad=[]; rebuild(); importDp(); save(); rerender();
+}
+function readProgram(){
+  S.programRaw=$('#ta-prog').value; S.sample=false; rebuild();
+  var r=restoreEntries(S.entries,S.patients,dpMap());
+  Object.keys(r.assign).forEach(function(k){
+    if(!S.assign[k]) S.assign[k]={};
+    Object.keys(r.assign[k]).forEach(function(s){ S.assign[k][s]=r.assign[k][s]; });
+  });
+  ui.msgProg=(r.ok||r.bad)?(r.ok+' baris isian dipulihkan'+(r.bad?', '+r.bad+' tidak cocok dengan daftar pasien':'')+'.'):'';
+  ui.pillsKey=''; save(); rerender();
+}
+function addPatient(){
+  var ward=$('#add-ward').value, rb=$('#add-rb').value.trim(), nm=$('#add-name').value.trim(), msg=$('#add-msg');
+  if(!ward||!rb||!nm){ msg.textContent='Isi ruangan, kamar dan bed, serta nama.'; return; }
+  var b=parseBed(clean(rb)), room, bed;
+  if(b){ room=b.room; bed=b.bed; } else { room=clean(rb); bed=''; }
+  var ex=findP(ward,room,bed);
+  if(ex&&ex.name){ msg.textContent='Bed itu sudah terisi atas nama '+ex.name+'.'; return; }
+  S.manual.push({ward:ward,room:room,bed:bed,name:nm});
+  rebuild();
+  var p=findP(ward,room,bed);
+  if(p){ ui.open=p.id; ui.flt='all'; }
+  $('#add-rb').value=''; $('#add-name').value='';
+  msg.textContent='Ditambahkan. Pilih programnya di bawah ruangan '+ward+'.';
+  save(); rerender();
+}
+function disarm(){
+  clearTimeout(ui.timer);
+  if(ui.armBtn){ ui.armBtn.textContent=ui.armBtn.getAttribute('data-label'); ui.armBtn.classList.remove('armed'); }
+  ui.armBtn=null;
+}
+function confirmThen(btn,fn){
+  if(ui.armBtn===btn){ disarm(); fn(); return; }
+  disarm();
+  ui.armBtn=btn; btn.textContent='Yakin? Ketuk lagi'; btn.classList.add('armed');
+  ui.timer=setTimeout(disarm,4000);
+}
+function copyOut(){
+  var o=$('#out'), m=$('#copy-msg');
+  function done(ok){ m.textContent=ok?'Tersalin.':'Teks sudah dipilih, salin manual.'; setTimeout(function(){ m.textContent=''; },2500); }
+  function fb(){
+    o.focus(); o.select();
+    var ok=false; try{ ok=document.execCommand('copy'); }catch(e){}
+    done(ok);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(o.value).then(function(){ done(true); },fb);
+  } else fb();
+}
+
+document.addEventListener('click',function(e){
+  var el=e.target.closest?e.target.closest('[data-act]'):null;
+  if(!el||el.tagName==='INPUT') return;
+  var act=el.getAttribute('data-act');
+  var p=S.patients[+el.getAttribute('data-p')], sec;
+  switch(act){
+    case 'tab': showTab(el.getAttribute('data-t')); break;
+    case 'sec': ui.sec=+el.getAttribute('data-i'); rerender(); scrollPill(); break;
+    case 'tog': toggle(p,S.sections[ui.sec]); rerender(); break;
+    case 'ptog': sec=S.sections[+el.getAttribute('data-s')]; toggle(p,sec); rerender(); break;
+    case 'open': if(p) ui.open=(ui.open===p.id)?'':p.id; rerender(); break;
+    case 'flt': ui.flt=el.getAttribute('data-v'); rerender(); break;
+    case 'notes': ui.notes=!ui.notes; rerender(); break;
+    case 'more': ui.more=!ui.more; rerender(); break;
+    case 'add-toggle': ui.addOpen=!ui.addOpen; rerender(); break;
+    case 'add': addPatient(); break;
+    case 'read-pat': readPatients(); break;
+    case 'wfold': ui.wardClosed[el.getAttribute('data-k')]=!ui.wardClosed[el.getAttribute('data-k')]; rerender(); break;
+    case 'paste-toggle': ui.pasteOpen=!ui.pasteOpen; if(ui.pasteOpen) $('#ta-pat').value=S.patientsRaw; rerender(); break;
+    case 'clear-names':
+      confirmThen(el,function(){
+        S.patients.forEach(function(q){ q.name=''; q.id=mkId(q); });
+        S.assign={}; S.dpjp={}; ui.open=''; syncRaw(); save(); rerender();
+      });
+      break;
+    case 'read-prog': readProgram(); break;
+    case 'copy': copyOut(); break;
+    case 'clear-assign':
+      confirmThen(el,function(){ S.assign={}; save(); rerender(); });
+      break;
+    case 'reset-sample':
+      confirmThen(el,function(){ loadSample(); ui.pillsKey=''; fillTextareas(); save(); rerender(); });
+      break;
+  }
+});
+document.addEventListener('input',function(e){
+  var t=e.target;
+  if(t.getAttribute&&t.getAttribute('data-act')==='pname'){
+    var pi=+t.getAttribute('data-p');
+    editName(pi,t.value);
+    if(t.parentNode&&t.parentNode.classList) t.parentNode.classList.toggle('filled',!!(S.patients[pi]&&S.patients[pi].name));
+    return;
+  }
+  if(t.getAttribute&&t.getAttribute('data-act')==='note'){
+    var p=S.patients[+t.getAttribute('data-p')], sec=S.sections[+t.getAttribute('data-s')];
+    if(p&&sec&&has(S.assign[p.id],sec.id)){ S.assign[p.id][sec.id]=t.value; saveSoon(); }
+    return;
+  }
+  if(t.id==='q-prog'){ ui.qProg=t.value; renderWards(); }
+  else if(t.id==='q-pat'){ ui.qPat=t.value; renderPatList(); }
+});
+document.addEventListener('keydown',function(e){
+  var t=e.target;
+  if(e.key==='Enter'&&t.getAttribute&&t.getAttribute('data-act')==='pname'){
+    e.preventDefault();
+    var all=$$('[data-act="pname"]'), ix=all.indexOf(t);
+    if(ix>=0&&all[ix+1]) all[ix+1].focus(); else t.blur();
+  }
+});
+document.addEventListener('change',function(e){
+  var t=e.target;
+  if(t.id==='cb-empty-prog'||t.id==='cb-empty-pat'){ S.showEmpty=t.checked; saveSoon(); rerender(); }
+  else if(t.id==='cb-hide'){ S.hideEmpty=t.checked; saveSoon(); renderOut(); }
+  else if(t.id==='cb-dp'){ S.withDp=t.checked; saveSoon(); renderOut(); }
+  else if(t.getAttribute&&t.getAttribute('data-act')==='pdpjp'){
+    var dpp=S.patients[+t.getAttribute('data-p')];
+    if(dpp){
+      if(t.value) S.dpjp[dpp.id]=t.value; else delete S.dpjp[dpp.id];
+      t.classList.toggle('filled',!!t.value); saveSoon();
+      if(t.getAttribute('data-r')) rerender();
+    }
+  }
+});
+window.addEventListener('resize',function(){ if(!$('#v-out').hidden) renderOut(); });
+
+/* ---------- init ---------- */
+var saved=load();
+if(saved&&(saved.pt||saved.pg)&&!saved.sample){
+  S.patientsRaw=saved.pt||''; S.programRaw=saved.pg||'';
+  S.manual=Array.isArray(saved.manual)?saved.manual:[];
+  S.assign=(saved.assign&&typeof saved.assign==='object')?saved.assign:{};
+  S.dpjp=(saved.dpjp&&typeof saved.dpjp==='object')?saved.dpjp:{}; S.withDp=saved.withDp!==false;
+  S.sample=!!saved.sample; S.showEmpty=!!saved.showEmpty; S.hideEmpty=!!saved.hideEmpty;
+  rebuild();
+} else {
+  loadSample();
+}
+fillTextareas();
+var hasNames=S.patients.some(function(p){ return !!p.name; });
+showTab(hasNames?'prog':'data');
+try{ if(navigator.storage&&navigator.storage.persist) navigator.storage.persist(); }catch(e){}
+var standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||window.navigator.standalone===true;
+var deferred=null;
+if(!standalone){
+  $('#install').hidden=false;
+  $('#install-t').textContent=/iphone|ipad|ipod/i.test(navigator.userAgent)?
+    'Pasang di layar utama: ketuk tombol Bagikan di Safari, lalu pilih Tambah ke Layar Utama.':
+    'Pasang di layar utama supaya bisa dibuka tanpa internet.';
+}
+window.addEventListener('beforeinstallprompt',function(e){ e.preventDefault(); deferred=e; $('#install').hidden=false; $('#install-btn').hidden=false; });
+$('#install-btn').addEventListener('click',function(){ if(!deferred) return; deferred.prompt(); deferred=null; $('#install-btn').hidden=true; });
+window.addEventListener('appinstalled',function(){ $('#install').hidden=true; });
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(function(r){ r.update(); }).catch(function(){});
+  });
+}
+/* Pembaruan otomatis: setiap aplikasi dibuka kembali, cek apakah index.html di server berubah. Kalau ya, muat ulang. */
+(function(){
+  var base=null;
+  function sig(t){ var h=0; for(var i=0;i<t.length;i++) h=(h*31+t.charCodeAt(i))|0; return t.length+':'+h; }
+  function get(){ return fetch('index.html?v='+Date.now(),{cache:'no-store'}).then(function(r){ return r.ok?r.text():null; }); }
+  function check(){
+    if(!navigator.onLine) return;
+    get().then(function(t){
+      if(!t) return;
+      var s=sig(t);
+      if(base===null){ base=s; return; }
+      if(s===base) return;
+      var last=0; try{ last=+sessionStorage.getItem('upd-at')||0; }catch(e){}
+      if(Date.now()-last<60000) return;
+      try{ sessionStorage.setItem('upd-at',String(Date.now())); }catch(e){}
+      setTimeout(function(){ location.reload(); },600);
+    }).catch(function(){});
+  }
+  window.addEventListener('load',check);
+  document.addEventListener('visibilitychange',function(){ if(document.visibilityState==='visible') check(); });
+})();
+})();
+</script>
+</body>
+</html>
