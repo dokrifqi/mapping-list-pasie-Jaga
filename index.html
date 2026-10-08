@@ -49,6 +49,7 @@ button{touch-action:manipulation}
   color-scheme:dark;
 }
 *{box-sizing:border-box}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font:15px/1.45 var(--f-body);padding-inline:16px;padding-block:0}
 button,input,select,textarea{font-family:inherit}
 :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
@@ -172,6 +173,21 @@ details.card[open] summary{margin-bottom:10px}
 .orph-w .tag{margin:0 6px 6px 0}
 #add-form{display:grid;gap:10px;margin-top:12px}
 
+/* follow up */
+.fu-wh{margin-top:18px;font:700 14px var(--f-body)}
+.fu-row{border:1px solid var(--line);background:var(--surface);border-radius:8px;margin-top:8px;padding:10px 12px}
+.fu-h{display:flex;gap:4px 8px;align-items:baseline;flex-wrap:wrap}
+.fu-h .code{font:500 12px var(--f-mono);color:var(--muted)}
+.fu-h .nm{font-weight:600}
+.fu-note{font-size:13px;color:var(--muted);margin-top:2px}
+.fu-btns{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}
+.fu-b{min-height:52px;padding:4px;border:1px solid var(--line);background:var(--surface2);color:var(--ink);border-radius:8px;font:600 12px/1.2 var(--f-body);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center}
+.fu-b .e{font-size:17px;line-height:1}
+.fu-b[aria-pressed="true"]{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 0 0 0 1px var(--accent)}
+.fu-row input[type=text]{margin-top:8px;min-height:42px;font-size:14.5px}
+#fu-out{min-height:200px}
+.nav button{font-size:12.5px}
+
 @media (prefers-reduced-motion: reduce){*{transition:none!important}}
 @supports (-webkit-touch-callout: none){input,select,textarea{font-size:16px!important}}
 </style>
@@ -270,13 +286,25 @@ details.card[open] summary{margin-bottom:10px}
     <div class="row"><button class="btn" id="copy" type="button" data-act="copy">Salin teks</button><span class="flash" id="copy-msg" role="status"></span></div>
     <details class="card" id="orph"><summary id="orph-sum"></summary><div id="orph-body"></div></details>
   </section>
+
+  <section id="v-fu" hidden>
+    <p class="sum" id="fu-sum" style="margin-top:14px"></p>
+    <div class="pills" id="fu-pills"></div>
+    <label class="lbl" for="fu-sec" style="margin-top:4px">Bagian program</label>
+    <select id="fu-sec"></select>
+    <div id="fu-list"></div>
+    <label class="lbl" for="fu-out" style="margin-top:18px">Teks follow up untuk WhatsApp</label>
+    <textarea id="fu-out" readonly spellcheck="false"></textarea>
+    <div class="row"><button class="btn" type="button" data-act="fu-copy">Salin teks</button><span class="flash" id="fu-copy-msg" role="status"></span></div>
+  </section>
 </main>
 
 <nav class="nav" aria-label="Tab"><div class="nav-in">
   <button type="button" data-act="tab" data-t="data">Data</button>
-  <button type="button" data-act="tab" data-t="prog" aria-current="page">Program</button>
   <button type="button" data-act="tab" data-t="pat">Pasien</button>
+  <button type="button" data-act="tab" data-t="prog" aria-current="page">Program</button>
   <button type="button" data-act="tab" data-t="out">Hasil</button>
+  <button type="button" data-act="tab" data-t="fu">Follow up</button>
 </div></nav>
 
 <script>
@@ -457,12 +485,31 @@ function buildOutput(M,opt){
     blocks.forEach(function(b){
       if(opt&&opt.hideEmpty&&!b.list.length) return;
       out.push(b.raw);
-      b.list.forEach(function(p){ out.push(fmtEntry(p,assign[p.id][sec.id],(opt&&opt.withDp&&M.dp)?M.dp[p.id]:'')); });
+      b.list.forEach(function(p){
+        var line=fmtEntry(p,assign[p.id][sec.id],(opt&&opt.withDp&&M.dp)?M.dp[p.id]:'');
+        if(opt&&opt.fu) line+=fuSuffix(opt.fu[fuKey(p.id,sec.id)]);
+        out.push(line);
+      });
       out.push(''); shown++;
     });
     if(!shown) out.push('');
   });
   return out.join('\n').replace(/\n{3,}/g,'\n\n').trim();
+}
+var FU_EMO={ok:'\u2705',x:'\u274C',wait:'\uD83D\uDD01'};
+var FU_LBL={ok:'Cek list',x:'Silang',wait:'Belum ada jawaban'};
+function fuKey(pid,sid){ return pid+'~'+sid; }
+function fuSuffix(f){
+  f=f||{};
+  var s='', ket=String(f.n||'').trim();
+  if(f.s&&FU_EMO[f.s]) s+=' '+FU_EMO[f.s];
+  if(!ket&&f.s==='wait') ket='Belum ada jawaban';
+  if(ket) s+=' ('+ket+')';
+  return s;
+}
+function buildFollow(M,opt){
+  var o=buildOutput(M,{hideEmpty:opt&&opt.hideEmpty,withDp:opt&&opt.withDp,fu:M.fu||{}});
+  return o.replace(/^(\W*)Program Jaga/i,'$1Follow Up Program Jaga');
 }
 function splitDp(s){
   s=String(s==null?'':s); var i=s.indexOf('/');
@@ -541,9 +588,9 @@ function esc(s){
 }
 
 var KEY='mapping-operan-jaga-v1';
-var S={patientsRaw:'',programRaw:'',manual:[],assign:{},dpjp:{},withDp:true,sample:false,showEmpty:false,hideEmpty:false,
+var S={patientsRaw:'',programRaw:'',manual:[],assign:{},fu:{},dpjp:{},withDp:true,sample:false,showEmpty:false,hideEmpty:false,
        patients:[],wards:[],pwarn:[],pre:[],sections:[],entries:[]};
-var ui={tab:'prog',sec:0,qProg:'',qPat:'',flt:'all',open:'',more:false,notes:false,addOpen:false,
+var ui={fuFlt:'all',fuSec:'all',tab:'prog',sec:0,qProg:'',qPat:'',flt:'all',open:'',more:false,notes:false,addOpen:false,
         pillsKey:'',armBtn:null,timer:0,saveT:0,msgProg:'',dpOk:0,dpBad:[],wardClosed:{},pasteOpen:false};
 
 var SAMPLE_PROGRAM=[
@@ -632,6 +679,10 @@ function prune(){
     if(!Object.keys(S.assign[k]).length) delete S.assign[k];
   });
   Object.keys(S.dpjp).forEach(function(k){ if(!pid[k]) delete S.dpjp[k]; });
+  Object.keys(S.fu).forEach(function(k){
+    var i=k.lastIndexOf('~'), a=k.slice(0,i), b=k.slice(i+1);
+    if(!pid[a]||!sid[b]||!has(S.assign[a],b)) delete S.fu[k];
+  });
 }
 function rebuild(){
   var pm=parsePatients(S.patientsRaw);
@@ -646,7 +697,7 @@ function rebuild(){
 
 function save(){
   try{
-    localStorage.setItem(KEY,JSON.stringify({pt:S.patientsRaw,pg:S.programRaw,manual:S.manual,assign:S.assign,dpjp:S.dpjp,withDp:S.withDp,
+    localStorage.setItem(KEY,JSON.stringify({pt:S.patientsRaw,pg:S.programRaw,manual:S.manual,assign:S.assign,fu:S.fu,dpjp:S.dpjp,withDp:S.withDp,
       sample:S.sample,showEmpty:S.showEmpty,hideEmpty:S.hideEmpty}));
   }catch(e){}
 }
@@ -656,7 +707,7 @@ function load(){
 }
 
 function loadSample(){
-  S.patientsRaw=START_PATIENTS; S.programRaw=SAMPLE_PROGRAM; S.manual=[]; S.assign={}; S.dpjp={}; S.sample=false;
+  S.patientsRaw=START_PATIENTS; S.programRaw=SAMPLE_PROGRAM; S.manual=[]; S.assign={}; S.fu={}; S.dpjp={}; S.sample=false;
   ui.sec=0; ui.open=''; ui.msgProg=''; ui.dpOk=0; ui.dpBad=[];
   rebuild();
   importDp();
@@ -725,6 +776,7 @@ function editName(i,val){
   if(p.id!==old){
     if(S.assign[old]){ S.assign[p.id]=S.assign[old]; delete S.assign[old]; }
     if(S.dpjp[old]){ S.dpjp[p.id]=S.dpjp[old]; delete S.dpjp[old]; }
+    Object.keys(S.fu).forEach(function(k){ if(k.indexOf(old+'~')===0){ S.fu[p.id+k.slice(old.length)]=S.fu[k]; delete S.fu[k]; } });
     if(ui.open===old) ui.open=p.id;
   }
   syncRaw(); saveSoon();
@@ -906,13 +958,67 @@ function renderOut(){
   }
 }
 
+function fuRows(){
+  var rows=[];
+  S.wards.forEach(function(w){
+    S.patients.forEach(function(p,pi){
+      if(p.wkey!==w.key) return;
+      S.sections.forEach(function(sec,si){
+        if(!has(S.assign[p.id],sec.id)) return;
+        var f=S.fu[fuKey(p.id,sec.id)]||{};
+        rows.push({w:w,p:p,pi:pi,sec:sec,si:si,st:f.s||'',n:f.n||''});
+      });
+    });
+  });
+  return rows;
+}
+function renderFuOut(){
+  var o=$('#fu-out');
+  o.value=buildFollow({pre:S.pre,wards:S.wards,patients:S.patients,sections:S.sections,assign:S.assign,fu:S.fu,dp:dpMap()},{hideEmpty:S.hideEmpty,withDp:S.withDp});
+  if(!$('#v-fu').hidden){
+    o.style.height='auto';
+    o.style.height=Math.min(Math.max(o.scrollHeight+4,200),Math.round(window.innerHeight*0.55))+'px';
+  }
+}
+function renderFu(){
+  var rows=fuRows(), cnt={all:rows.length,none:0,ok:0,x:0,wait:0};
+  rows.forEach(function(r){ cnt[r.st||'none']++; });
+  $('#fu-sum').textContent=rows.length?(cnt.ok+' dari '+rows.length+' sudah dicek list.'):'Belum ada isian program. Pilih pasien di tab Program dulu.';
+  var P=[['all','Semua'],['none','Belum diisi'],['ok','Cek list'],['x','Silang'],['wait','Belum ada jawaban']];
+  $('#fu-pills').innerHTML=P.map(function(q){
+    var on=ui.fuFlt===q[0];
+    return '<button type="button" class="pill'+(on?' on':'')+'" aria-pressed="'+on+'" data-act="fu-flt" data-v="'+q[0]+'" data-fk="fuf'+q[0]+'">'+(FU_EMO[q[0]]?FU_EMO[q[0]]+' ':'')+q[1]+'<span class="n">'+cnt[q[0]]+'</span></button>';
+  }).join('');
+  var sel='<option value="all">Semua bagian</option>';
+  S.sections.forEach(function(s,i){ sel+='<option value="'+i+'"'+(String(ui.fuSec)===String(i)?' selected':'')+'>'+esc(s.title)+'</option>'; });
+  $('#fu-sec').innerHTML=sel;
+  var show=rows.filter(function(r){
+    if(ui.fuFlt!=='all'&&(r.st||'none')!==ui.fuFlt) return false;
+    if(ui.fuSec!=='all'&&String(r.si)!==String(ui.fuSec)) return false;
+    return true;
+  });
+  var h='', lastW='';
+  show.forEach(function(r,n){
+    if(r.w.key!==lastW){ h+='<div class="fu-wh">'+esc(r.w.label)+'</div>'; lastW=r.w.key; }
+    var note=S.assign[r.p.id][r.sec.id];
+    h+='<div class="fu-row"><div class="fu-h"><span class="code">'+esc(code(r.p))+'</span><b class="nm">'+esc(r.p.name||'(tanpa nama)')+'</b><span class="tag">'+esc(r.sec.title)+'</span></div>'+
+      (note?'<div class="fu-note">'+esc(note)+'</div>':'')+
+      '<div class="fu-btns" role="group" aria-label="Status follow up">'+
+      ['ok','x','wait'].map(function(v){
+        return '<button type="button" class="fu-b" aria-pressed="'+(r.st===v)+'" data-act="fu-st" data-p="'+r.pi+'" data-s="'+r.si+'" data-v="'+v+'" data-fk="fub'+r.pi+'_'+r.si+'_'+v+'"><span class="e">'+FU_EMO[v]+'</span>'+FU_LBL[v]+'</button>';
+      }).join('')+'</div>'+
+      '<input type="text" data-act="fu-note" data-p="'+r.pi+'" data-s="'+r.si+'" value="'+esc(r.n)+'" placeholder="keterangan, mis. Belum ada hasil" autocomplete="off" aria-label="Keterangan follow up '+esc(code(r.p))+'"></div>';
+  });
+  $('#fu-list').innerHTML=h||(rows.length?'<p class="empty">Tidak ada isian dengan filter ini.</p>':'');
+  renderFuOut();
+}
 function renderAll(){
   $('#cb-empty-prog').checked=S.showEmpty;
   $('#cb-empty-pat').checked=S.showEmpty;
   $('#cb-hide').checked=S.hideEmpty;
   $('#cb-dp').checked=S.withDp;
   renderHeader(); renderData(); renderPills(); renderSecHead(); renderWards(); renderNotes();
-  renderPatList(); renderAdd(); renderOut();
+  renderPatList(); renderAdd(); renderOut(); renderFu();
 }
 function rerender(){
   var a=document.activeElement, fk=a&&a.getAttribute?a.getAttribute('data-fk'):null;
@@ -925,7 +1031,7 @@ function rerender(){
 
 function showTab(t){
   ui.tab=t;
-  ['data','prog','pat','out'].forEach(function(n){ $('#v-'+n).hidden=(n!==t); });
+  ['data','prog','pat','out','fu'].forEach(function(n){ $('#v-'+n).hidden=(n!==t); });
   $$('.nav button').forEach(function(b){
     if(b.getAttribute('data-t')===t) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current');
   });
@@ -938,7 +1044,7 @@ function showTab(t){
 function toggle(p,sec){
   if(!p||!sec) return;
   var a=S.assign[p.id]||(S.assign[p.id]={});
-  if(has(a,sec.id)) delete a[sec.id]; else a[sec.id]='';
+  if(has(a,sec.id)){ delete a[sec.id]; delete S.fu[fuKey(p.id,sec.id)]; } else a[sec.id]='';
   if(!Object.keys(a).length) delete S.assign[p.id];
   saveSoon();
 }
@@ -984,8 +1090,8 @@ function confirmThen(btn,fn){
   ui.armBtn=btn; btn.textContent='Yakin? Ketuk lagi'; btn.classList.add('armed');
   ui.timer=setTimeout(disarm,4000);
 }
-function copyOut(){
-  var o=$('#out'), m=$('#copy-msg');
+function copyOut(oid,mid){
+  var o=$(oid||'#out'), m=$(mid||'#copy-msg');
   function done(ok){ m.textContent=ok?'Tersalin.':'Teks sudah dipilih, salin manual.'; setTimeout(function(){ m.textContent=''; },2500); }
   function fb(){
     o.focus(); o.select();
@@ -1019,13 +1125,24 @@ document.addEventListener('click',function(e){
     case 'clear-names':
       confirmThen(el,function(){
         S.patients.forEach(function(q){ q.name=''; q.id=mkId(q); });
-        S.assign={}; S.dpjp={}; ui.open=''; syncRaw(); save(); rerender();
+        S.assign={}; S.fu={}; S.dpjp={}; ui.open=''; syncRaw(); save(); rerender();
       });
       break;
     case 'read-prog': readProgram(); break;
     case 'copy': copyOut(); break;
+    case 'fu-copy': copyOut('#fu-out','#fu-copy-msg'); break;
+    case 'fu-flt': ui.fuFlt=el.getAttribute('data-v'); rerender(); break;
+    case 'fu-st':
+      sec=S.sections[+el.getAttribute('data-s')];
+      if(p&&sec){
+        var fk=fuKey(p.id,sec.id), f=S.fu[fk]||{}, v=el.getAttribute('data-v');
+        f.s=(f.s===v)?'':v;
+        if(!f.s&&!f.n) delete S.fu[fk]; else S.fu[fk]=f;
+        saveSoon(); rerender();
+      }
+      break;
     case 'clear-assign':
-      confirmThen(el,function(){ S.assign={}; save(); rerender(); });
+      confirmThen(el,function(){ S.assign={}; S.fu={}; save(); rerender(); });
       break;
     case 'reset-sample':
       confirmThen(el,function(){ loadSample(); ui.pillsKey=''; fillTextareas(); save(); rerender(); });
@@ -1045,6 +1162,16 @@ document.addEventListener('input',function(e){
     if(p&&sec&&has(S.assign[p.id],sec.id)){ S.assign[p.id][sec.id]=t.value; saveSoon(); }
     return;
   }
+  if(t.getAttribute&&t.getAttribute('data-act')==='fu-note'){
+    var fp=S.patients[+t.getAttribute('data-p')], fs=S.sections[+t.getAttribute('data-s')];
+    if(fp&&fs){
+      var fk2=fuKey(fp.id,fs.id), f2=S.fu[fk2]||{};
+      f2.n=t.value;
+      if(!f2.s&&!f2.n) delete S.fu[fk2]; else S.fu[fk2]=f2;
+      saveSoon(); renderFuOut();
+    }
+    return;
+  }
   if(t.id==='q-prog'){ ui.qProg=t.value; renderWards(); }
   else if(t.id==='q-pat'){ ui.qPat=t.value; renderPatList(); }
 });
@@ -1059,6 +1186,7 @@ document.addEventListener('keydown',function(e){
 document.addEventListener('change',function(e){
   var t=e.target;
   if(t.id==='cb-empty-prog'||t.id==='cb-empty-pat'){ S.showEmpty=t.checked; saveSoon(); rerender(); }
+  else if(t.id==='fu-sec'){ ui.fuSec=t.value; rerender(); }
   else if(t.id==='cb-hide'){ S.hideEmpty=t.checked; saveSoon(); renderOut(); }
   else if(t.id==='cb-dp'){ S.withDp=t.checked; saveSoon(); renderOut(); }
   else if(t.getAttribute&&t.getAttribute('data-act')==='pdpjp'){
@@ -1078,6 +1206,7 @@ if(saved&&(saved.pt||saved.pg)&&!saved.sample){
   S.patientsRaw=saved.pt||''; S.programRaw=saved.pg||'';
   S.manual=Array.isArray(saved.manual)?saved.manual:[];
   S.assign=(saved.assign&&typeof saved.assign==='object')?saved.assign:{};
+  S.fu=(saved.fu&&typeof saved.fu==='object')?saved.fu:{};
   S.dpjp=(saved.dpjp&&typeof saved.dpjp==='object')?saved.dpjp:{}; S.withDp=saved.withDp!==false;
   S.sample=!!saved.sample; S.showEmpty=!!saved.showEmpty; S.hideEmpty=!!saved.hideEmpty;
   rebuild();
