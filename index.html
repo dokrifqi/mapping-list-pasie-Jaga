@@ -261,6 +261,28 @@ details.card[open] summary{margin-bottom:10px}
 .mgp{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface2)}
 .dpl-row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}
 .dpl-x{flex:0 0 auto;min-height:32px;padding:0 10px;border:1px solid var(--danger);color:var(--danger);background:transparent;border-radius:8px;font-size:12.5px;cursor:pointer}
+#kb-list .prow,#pat-list .prow{scroll-margin-top:128px}
+.lbl.sr{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+.pnl{padding:8px 10px 10px}
+.pnl .dprow{margin-bottom:6px}
+.pnl .dpbtn{min-height:36px;padding:4px 10px}
+.pnl .help{font-size:11.5px;margin-bottom:6px}
+.pnl .pgrid{gap:5px}
+.pnl .pgrid .pill{min-height:32px;padding:4px 10px;font-size:13px}
+.pnl .noterow{margin-top:6px}
+.pnl .noterow input{min-height:36px;padding:4px 8px}
+.kbp{padding:6px 10px 10px}
+.kbp .kb-t{font:700 11px var(--f-body);letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:8px 0 4px}
+.kbp .kb-h{font:400 10.5px var(--f-body);letter-spacing:0;text-transform:none;margin-left:6px}
+.kb3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.kbp .fld{display:grid;gap:2px;min-width:0}
+.kbp .fld label{font:600 10px var(--f-body);letter-spacing:.04em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kbp input,.kbp select{min-height:36px;height:36px;padding:4px 8px;font-size:14px;min-width:0}
+.kbp .kb-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.kbp .kb-btns .btn,.kbp .kb-act .btn{min-height:36px;padding:0 6px;font-size:13px}
+.kbp .kb-res{margin-top:8px;padding:8px 10px;font-size:12.5px;line-height:1.45}
+.kbp .kb-act{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:6px;margin-top:8px}
+.kb-hide{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}
 @page{size:A4 landscape;margin:8mm}
 @media print{
   html,body{background:#fff!important;color:#000!important}
@@ -303,6 +325,22 @@ body{margin:0;letter-spacing:.005em;-webkit-font-smoothing:antialiased}
 .nav button:active{transform:scale(.98)}
 .nav button[aria-current="page"]{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 2px 6px -2px rgba(14,42,75,.5)}
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .nav button[aria-current="page"]{background:var(--accent);border-color:var(--accent);color:var(--on-accent)} }
+html[data-shift="pagi"]{--bg:#EAF4FD;--surface2:#F2F8FD;--line:#D3E3F1;--accent:#1B6FC2;--accent-soft:#D9EBFB;--brand:#1B6FC2;--brand2:#2B82D6;--teal:#1B6FC2;--hd:#C9E4FA;--hd-ink:#0F2E4A;--hd-bar:rgba(15,46,74,.14)}
+html[data-shift="malam"]{--bg:#EAF6EE;--surface2:#F2FAF5;--line:#D2E8DA;--accent:#25774A;--accent-soft:#D8F0E1;--brand:#25774A;--brand2:#2E8B57;--teal:#25774A;--hd:#CBEBD5;--hd-ink:#0F3A22;--hd-bar:rgba(15,58,34,.14)}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"])[data-shift="pagi"]{--bg:#0E1A24;--surface:#142431;--surface2:#1A2E3E;--line:#27425A;--accent:#5AAEF0;--accent-soft:#17384F;--brand:#2F6FA8;--teal:#5AAEF0;--hd:#173A56;--hd-ink:#E4F1FB;--hd-bar:rgba(255,255,255,.16)}
+  :root:not([data-theme="light"])[data-shift="malam"]{--bg:#0E1C14;--surface:#14281D;--surface2:#1A3425;--line:#27503A;--accent:#5BCB8B;--accent-soft:#163D28;--brand:#2E7D52;--teal:#5BCB8B;--hd:#17402B;--hd-ink:#E2F6E9;--hd-bar:rgba(255,255,255,.16)}
+}
+html[data-shift] .top{background:var(--hd);color:var(--hd-ink)}
+html[data-shift] .top h1,html[data-shift] .top .when,html[data-shift] .top .bar-t{color:var(--hd-ink)}
+html[data-shift] .top .when,html[data-shift] .top .bar-t{opacity:.85}
+html[data-shift] .top label.when #when{border-bottom-color:currentColor}
+html[data-shift] .top .bar{background:var(--hd-bar)}
+html[data-shift] .top .bar>i{background:var(--accent)}
+html[data-shift] .top h1::before{background-color:var(--accent)}
+.shiftsw{display:flex;gap:6px;margin-top:10px}
+.shiftsw button{flex:1;min-height:36px;border:1.5px solid rgba(0,0,0,.18);border-radius:9px;background:rgba(255,255,255,.55);color:inherit;font:700 13.5px var(--f-body);cursor:pointer}
+.shiftsw button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:#fff}
 .card,.fu-row,.fu-pan,.warnbox,.info{box-shadow:var(--sh1)}
 .card{border-radius:14px;padding:16px}
 .fu-row{border-radius:12px;padding:12px 14px}
@@ -370,6 +408,7 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:2px s
 
 <header class="top"><div class="top-in">
   <div class="brand"><h1>Mapping Operan Jaga<small style="display:block;font-size:11px;font-weight:500;opacity:.75;margin-top:2px">by @dokrifqi</small></h1><label class="when" aria-label="Pilih tanggal operan"><span id="when"></span><input type="date" id="dt"></label></div>
+  <div class="shiftsw" role="group" aria-label="Pilih jaga"><button type="button" data-act="shift" data-v="Pagi" aria-pressed="false">Pagi · 06.00 - 14.00</button><button type="button" data-act="shift" data-v="Malam" aria-pressed="false">Malam · 14.00 - 06.00</button></div>
   <div class="bar" id="bar" role="progressbar" aria-label="Pasien yang sudah punya program" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="prog-fill"></i></div>
   <div class="bar-t" id="prog-text"></div>
 </div></header>
@@ -791,13 +830,21 @@ function programDate(raw){
   var m=i<0?null:/(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(lines[i]);
   return m?{y:+m[3],m:+m[2],d:+m[1]}:null;
 }
-function setProgramDate(raw,y,m,d){
+function themeOf(w){ return /^pagi$/i.test(w||'')?'pagi':'malam'; }
+function shiftNow(t){ var h=(t||new Date()).getHours(); return (h>=6&&h<14)?'Pagi':'Malam'; }
+function programShift(raw){
+  var lines=String(raw||'').split(/\r?\n/), i=dateLineIdx(lines);
+  var m=i<0?null:/\b(Pagi|Siang|Sore|Malam)\b/i.exec(lines[i]);
+  return m?m[1]:'';
+}
+function setProgramDate(raw,y,m,d,shift){
   var lines=String(raw||'').split(/\r?\n/), i=dateLineIdx(lines);
   if(i<0) return raw;
   var day=DAYS_ID[new Date(y,m-1,d).getDay()], ds=d+'/'+m+'/'+y, l=lines[i];
   if(/\d{1,2}\/\d{1,2}\/\d{4}/.test(l)) l=l.replace(/\d{1,2}\/\d{1,2}\/\d{4}/,ds);
   else l=l.replace(/^(.*?)([*_\s]*)$/,function(x,a,b){ return a+' '+ds+b; });
   l=l.replace(/\b(Senin|Selasa|Rabu|Kamis|Jum'?at|Sabtu|Minggu|Ahad)\b/i,day);
+  if(shift) l=l.replace(/\b(Pagi|Siang|Sore|Malam)\b/i,shift);
   lines[i]=l;
   return lines.join('\n');
 }
@@ -935,7 +982,7 @@ function kbCalc(k){
   var bcPct=(bc!=null&&dar)?bc/dar*100:null;
   return {inp:inp,out:out,bc:bc,jam:jam,diu:diu,diuKg:diuKg,bcPct:bcPct,dar:dar};
 }
-var KB_UMR=[['','Pilih umur'],['50','0 sampai 1 bulan (50)'],['40','1 bulan sampai 1 tahun (40)'],['30','1 sampai 5 tahun (30)'],['20','di atas 5 tahun (20)']];
+var KB_UMR=[['','Pilih'],['50','0-1 bln'],['40','1 bln-1 th'],['30','1-5 th'],['20','>5 th']];
 function kbDarrow(bb){
   if(!bb||bb<=0) return null;
   return 100*Math.min(bb,10)+50*Math.min(Math.max(bb-10,0),10)+20*Math.max(bb-20,0);
@@ -999,7 +1046,7 @@ function esc(s){
 }
 
 var KEY='mapping-operan-jaga-v1';
-var S={patientsRaw:'',programRaw:'',manual:[],assign:{},fu:{},rm:{},kb:{},dpjp:{},dpl:null,withDp:true,sample:false,showEmpty:false,hideEmpty:false,
+var S={patientsRaw:'',programRaw:'',manual:[],assign:{},fu:{},rm:{},kb:{},dpjp:{},dpl:null,shift:'',withDp:true,sample:false,showEmpty:false,hideEmpty:false,
        patients:[],wards:[],pwarn:[],pre:[],sections:[],entries:[]};
 var ui={mgW:{},mgMsg:'',dpMgrOpen:false,dpaMsg:'',kbOpen:'',qKb:'',fuOpen:'',pickAll:false,rmOpen:'',qRm:'',pvScope:'filled',pvZoom:'fit',fuFlt:'all',fuSec:'all',tab:'prog',sec:0,qProg:'',qPat:'',flt:'all',open:'',more:false,notes:false,addOpen:false,
         pillsKey:'',armBtn:null,timer:0,saveT:0,msgProg:'',dpOk:0,dpBad:[],wardClosed:{},pasteOpen:false};
@@ -1152,6 +1199,7 @@ function prune(){
   });
 }
 function rebuild(){
+  var ps0=programShift(S.programRaw); if(ps0) S.shift=ps0.charAt(0).toUpperCase()+ps0.slice(1).toLowerCase();
   var pm=parsePatients(S.patientsRaw);
   mergeManual(pm,S.manual);
   S.patients=pm.patients; S.wards=pm.wards; S.pwarn=pm.warnings;
@@ -1164,7 +1212,7 @@ function rebuild(){
 
 function save(){
   try{
-    localStorage.setItem(KEY,JSON.stringify({pt:S.patientsRaw,pg:S.programRaw,manual:S.manual,assign:S.assign,fu:S.fu,rm:S.rm,kb:S.kb,dpjp:S.dpjp,dpl:S.dpl,withDp:S.withDp,
+    localStorage.setItem(KEY,JSON.stringify({pt:S.patientsRaw,pg:S.programRaw,manual:S.manual,assign:S.assign,fu:S.fu,rm:S.rm,kb:S.kb,dpjp:S.dpjp,dpl:S.dpl,shift:S.shift,withDp:S.withDp,
       sample:S.sample,showEmpty:S.showEmpty,hideEmpty:S.hideEmpty,mig:S.mig}));
   }catch(e){}
 }
@@ -1182,6 +1230,11 @@ function loadSample(){
 
 /* ---------- render ---------- */
 function renderHeader(){
+  (function(){
+    var sh=S.shift||shiftNow(), th=themeOf(sh);
+    document.documentElement.setAttribute('data-shift',th);
+    $$('.shiftsw button').forEach(function(b){ b.setAttribute('aria-pressed',String(themeOf(b.getAttribute('data-v'))===th)); });
+  })();
   var occ=S.patients.filter(isOcc), done=occ.filter(anyA);
   var pct=occ.length?Math.round(done.length/occ.length*100):0;
   $('#prog-fill').style.width=pct+'%';
@@ -1299,7 +1352,7 @@ function blankProgram(){
   var pg=parseProgram(SAMPLE_PROGRAM), L=[pg.pre[0]||'*Program Jaga*',''];
   pg.sections.forEach(function(s){ L.push(s.raw); L.push(''); });
   var t=new Date();
-  return setProgramDate(L.join('\n').trim(),t.getFullYear(),t.getMonth()+1,t.getDate());
+  return setProgramDate(L.join('\n').trim(),t.getFullYear(),t.getMonth()+1,t.getDate(),S.shift||shiftNow(t));
 }
 function startBlank(){
   S.patientsRaw=''; S.manual=[]; S.assign={}; S.fu={}; S.rm={}; S.kb={}; S.dpjp={}; S.dpl=[];
@@ -1547,7 +1600,7 @@ function patRow(p,i){
   var h='<div class="prow'+(open?' open':'')+'"><button type="button" class="prow-h" data-act="open" data-p="'+i+'" data-fk="r'+i+'" aria-expanded="'+open+'">'+
     '<span class="code">'+esc(code(p))+'</span><span class="nm">'+esc(p.name||'(tanpa nama)')+'</span><span class="chev"></span><span class="tags">'+dpTag+tags+'</span></button>';
   if(open){
-    h+='<div class="panel"><div class="dprow"><label class="lbl" for="pd'+i+'">DPJP</label>'+dpSelect(p.id,i,true)+'</div><p class="help">Ketuk program untuk pasien ini. Garis putus berarti ruangannya tidak ada di template program itu, jadi akan ditambahkan di akhir.</p><div class="pgrid">';
+    h+='<div class="panel pnl"><div class="dprow"><label class="lbl sr" for="pd'+i+'">DPJP</label>'+dpSelect(p.id,i,true)+'</div><p class="help">Ketuk program untuk pasien ini. Garis putus: ruangan tidak ada di template.</p><div class="pgrid">';
     S.sections.forEach(function(s,si){
       var on=has(a,s.id), ok=!s.wards.length||s.wards.some(function(t){ return wardMatch(p.ward,t.label); });
       h+='<button type="button" class="pill'+(on?' on':'')+(ok?'':' off')+'" aria-pressed="'+on+'" data-act="ptog" data-p="'+i+'" data-s="'+si+'" data-fk="pp'+i+'_'+si+'">'+esc(s.title)+'</button>';
@@ -1687,13 +1740,22 @@ function kbField(i,id,f,lbl,type,ph,val){
   return '<div class="rm-f"><label class="lbl" for="'+id+'" style="margin:0">'+esc(lbl)+'</label><input type="text" id="'+id+'" data-act="kb" data-p="'+i+'" data-f="'+f+'" value="'+esc(val||'')+'" '+(type==='num'?'inputmode="decimal" ':'')+'placeholder="'+esc(ph||'')+'" autocomplete="off"></div>';
 }
 function kbCalcHtml(k){
-  var c=kbCalc(k), L=kbBcd(k), h='', w=kbIwl(k);
-  if(w) h+='<div class="muted" style="font-weight:400;margin-bottom:6px">IWL nefro: luas permukaan (akar BB x TB / 3600) = '+esc(kbFmt(Math.round(w.bsa*100)/100))+', IWL = '+esc(kbFmt(w.f))+' x 400 = '+esc(kbFmt(w.day))+' ml/24 jam, jadi '+esc(kbFmt(w.per))+' ml per '+esc(kbFmt(w.jam))+' jam.</div>';
-  var w2=kbIwl2(k);
-  if(w2) h+='<div class="muted" style="font-weight:400;margin-bottom:6px">IWL non nefro: BB '+esc(kbFmt(w2.bb))+' x '+esc(kbFmt(w2.c))+' / 3 = '+esc(kbFmt(w2.per8))+' cc per 8 jam'+(w2.jam!==8?', jadi '+esc(kbFmt(w2.per))+' cc per '+esc(kbFmt(w2.jam))+' jam':'')+'.</div>';
-  if(c.dar) h+='<div class="muted" style="font-weight:400;margin-bottom:6px">Darrow = '+esc(kbFmt(c.dar))+' cc/hari.</div>';
-  if(!L.length) return h+'Isi angka di atas, hasil dihitung otomatis.';
-  return h+L.map(esc).join('<br>');
+  var c=kbCalc(k), h='', w=kbIwl(k), w2=kbIwl2(k), vt=kbVitals(k), a=[];
+  if(vt) h+='<div><b>KUVS</b> '+esc(vt)+'</div>';
+  if(c.inp!=null||c.out!=null){
+    var l1=[]; if(c.inp!=null) l1.push('Input '+kbFmt(c.inp)); if(c.out!=null) l1.push('Output '+kbFmt(c.out)); if(c.bc!=null) l1.push('<b>BC '+kbSign(c.bc)+'</b>');
+    h+='<div>'+l1.join(' | ')+' ml</div>';
+  }
+  if(c.diuKg!=null) a.push('Diuresis '+kbFmt(c.diuKg)+' ml/kgBB/jam'+(c.diuKg<1?' (&lt;1, lapor)':''));
+  else if(c.diu!=null) a.push('Diuresis '+kbFmt(c.diu)+' ml/jam');
+  if(c.bcPct!=null) a.push('BC '+kbFmt(c.bcPct)+'%'+(c.bcPct>20?' (&gt;20%, lapor)':''));
+  if(a.length) h+='<div>'+a.join(' | ')+'</div>';
+  var m=[];
+  if(w) m.push('IWL nefro: luas permukaan '+kbFmt(Math.round(w.bsa*100)/100)+' x 400 = '+kbFmt(w.day)+'/24 jam');
+  if(w2) m.push('IWL non nefro: '+kbFmt(w2.bb)+' x '+kbFmt(w2.c)+' / 3 = '+kbFmt(w2.per8)+'/8 jam');
+  if(c.dar) m.push('Darrow '+kbFmt(c.dar)+'/hari');
+  if(m.length) h+='<div class="muted" style="font-weight:400;font-size:11.5px">'+esc(m.join(' | '))+'</div>';
+  return h||'Isi angka di atas, hasil dihitung otomatis.';
 }
 function kbSync(p,pv,pb){
   var k=S.kb[p.id]||{}, nv=kbVitals(k), nb=kbBcdLine(k);
@@ -1704,20 +1766,24 @@ function kbSync(p,pv,pb){
     else if(cur!==null&&cur===pr){ delete a[sec.id]; if(!Object.keys(a).length) delete S.assign[p.id]; }
   });
 }
+function kbF(i,f,lbl,ph,val,num){
+  var id='kb'+i+'_'+f;
+  return '<div class="fld"><label for="'+id+'">'+esc(lbl)+'</label><input type="text" id="'+id+'" data-act="kb" data-p="'+i+'" data-f="'+f+'" value="'+esc(val||'')+'" '+(num?'inputmode="decimal" ':'')+'placeholder="'+esc(ph||'')+'" autocomplete="off"></div>';
+}
 function kbPanel(p,i){
-  var k=S.kb[p.id]||{}, h='<div class="panel">';
-  h+='<label class="lbl">KUVS</label><div class="kb-g">';
-  KB_VIT.forEach(function(f){ h+=kbField(i,'kb'+i+'_'+f[0],f[0],f[1],f[2],f[3],k[f[0]]); });
-  h+='</div><label class="lbl" style="margin-top:14px">Balance cairan dan diuresis</label>';
-  h+='<p class="sub muted" style="font-size:12.5px;margin-bottom:6px">Input = infus + oral. Output = IWL + urin + BAB + muntah/diare (tanyakan berapa gelas aqua, 1 gelas sekitar 220 ml). Lapor bila diuresis < 1 atau BC % > 20.</p><div class="kb-g">';
-  KB_BAL.forEach(function(f){ h+=kbField(i,'kb'+i+'_'+f[0],f[0],f[1],'num','',k[f[0]]); });
-  h+=kbField(i,'kb'+i+'_jam','jam','Lama pencatatan (jam)','num','8',k.jam);
-  h+=kbField(i,'kb'+i+'_bb','bb','BB (kg)','num','',k.bb);
-  h+=kbField(i,'kb'+i+'_tb','tb','TB (cm)','num','',k.tb);
-  h+='<div class="rm-f" style="grid-column:1/-1"><label class="lbl" for="kb'+i+'_umr" style="margin:0">Umur (konstanta IWL non nefro)</label><select id="kb'+i+'_umr" data-act="kb" data-p="'+i+'" data-f="umr">'+KB_UMR.map(function(o){ return '<option value="'+o[0]+'"'+((k.umr||'')===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join('')+'</select></div>';
-  h+='</div><div class="rm-acts" style="margin-top:10px"><button type="button" class="btn sec" data-act="kb-iwl2" data-p="'+i+'">Hitung IWL non nefro (BB dan umur)</button><button type="button" class="btn sec" data-act="kb-iwl" data-p="'+i+'">Hitung IWL nefro (BB dan TB)</button></div><div class="kb-res" id="kb-calc" aria-live="polite">'+kbCalcHtml(k)+'</div>';
-  h+='<label class="lbl" for="kb-one" style="margin-top:12px">Teks untuk WhatsApp</label><textarea id="kb-one" rows="6" readonly>'+esc(kbOne(p))+'</textarea>';
-  h+='<div class="rm-acts"><button type="button" class="btn" data-act="kb-copy-one">Salin</button><button type="button" class="btn sec" data-act="kb-resume" data-p="'+i+'">Masukkan ke Resume</button><button type="button" class="btn sec" data-act="kb-clear-one" data-p="'+i+'">Kosongkan</button></div><div class="flash" id="kb-pmsg" role="status"></div></div>';
+  var k=S.kb[p.id]||{}, h='<div class="panel kbp">';
+  h+='<div class="kb-t">KUVS</div><div class="kb3">'+
+    kbF(i,'td','Tensi','100/60',k.td,false)+kbF(i,'rr','RR','x/mnt',k.rr,true)+kbF(i,'s','Suhu','°C',k.s,true)+
+    kbF(i,'n','Nadi','x/mnt',k.n,true)+kbF(i,'sat','SpO2','%',k.sat,true)+kbF(i,'bb','BB','kg',k.bb,true)+'</div>';
+  h+='<div class="kb-t">BCD (ml) <span class="kb-h">Muntah: tanya jumlah gelas aqua (±220 ml)</span></div><div class="kb3">'+
+    kbF(i,'inf','Infus','',k.inf,true)+kbF(i,'oral','Oral','',k.oral,true)+kbF(i,'iwl','IWL','',k.iwl,true)+
+    kbF(i,'urin','Urin','',k.urin,true)+kbF(i,'bab','BAB','',k.bab,true)+kbF(i,'mun','Muntah/diare','',k.mun,true)+
+    kbF(i,'jam','Jam','8',k.jam,true)+kbF(i,'tb','TB (cm)','',k.tb,true)+
+    '<div class="fld"><label for="kb'+i+'_umr">Umur</label><select id="kb'+i+'_umr" data-act="kb" data-p="'+i+'" data-f="umr">'+KB_UMR.map(function(o){ return '<option value="'+o[0]+'"'+((k.umr||'')===o[0]?' selected':'')+'>'+esc(o[1])+'</option>'; }).join('')+'</select></div></div>';
+  h+='<div class="kb-btns"><button type="button" class="btn sec" data-act="kb-iwl2" data-p="'+i+'">IWL non nefro</button><button type="button" class="btn sec" data-act="kb-iwl" data-p="'+i+'">IWL nefro</button></div>';
+  h+='<div class="kb-res" id="kb-calc" aria-live="polite">'+kbCalcHtml(k)+'</div>';
+  h+='<textarea id="kb-one" class="kb-hide" rows="3" readonly tabindex="-1" aria-hidden="true">'+esc(kbOne(p))+'</textarea>';
+  h+='<div class="kb-act"><button type="button" class="btn" data-act="kb-copy-one">Salin</button><button type="button" class="btn sec" data-act="kb-resume" data-p="'+i+'">Ke Resume</button><button type="button" class="btn sec" data-act="kb-clear-one" data-p="'+i+'">Kosongkan</button></div><div class="flash" id="kb-pmsg" role="status"></div></div>';
   return h;
 }
 function kbOne(p){ return kbAny(S.kb[p.id])?kbText(code(p)+' '+p.name,S.kb[p.id]):''; }
@@ -2156,7 +2222,7 @@ document.addEventListener('click',function(e){
       else toggle(p,S.sections[ui.sec]);
       rerender(); break;
     case 'ptog': sec=S.sections[+el.getAttribute('data-s')]; toggle(p,sec); if(p&&ui.fuOpen===p.id) ui.fuOpen=''; rerender(); break;
-    case 'open': if(p) ui.open=(ui.open===p.id)?'':p.id; rerender(); break;
+    case 'open': if(p) ui.open=(ui.open===p.id)?'':p.id; rerender(); if(ui.open){ var op2=document.querySelector('#pat-list .prow.open'); if(op2&&op2.scrollIntoView) op2.scrollIntoView({block:'start'}); } break;
     case 'flt': ui.flt=el.getAttribute('data-v'); rerender(); break;
     case 'notes': ui.notes=!ui.notes; rerender(); break;
     case 'more': ui.more=!ui.more; rerender(); break;
@@ -2184,7 +2250,7 @@ document.addEventListener('click',function(e){
       break;
     case 'read-prog': readProgram(); break;
     case 'copy': copyOut(); break;
-    case 'kb-open': if(p) ui.kbOpen=(ui.kbOpen===p.id)?'':p.id; rerender(); break;
+    case 'kb-open': if(p) ui.kbOpen=(ui.kbOpen===p.id)?'':p.id; rerender(); if(ui.kbOpen){ var op=document.querySelector('#kb-list .prow.open'); if(op&&op.scrollIntoView) op.scrollIntoView({block:'start'}); } break;
     case 'kb-copy-one': copyOut('#kb-one','#kb-pmsg'); break;
     case 'kb-copy-all': copyOut('#kb-out','#kb-msg'); break;
     case 'kb-clear-one': if(p){ var o1=S.kb[p.id]||{}, pv1=kbVitals(o1), pb1=kbBcdLine(o1); delete S.kb[p.id]; kbSync(p,pv1,pb1); save(); rerender(); } break;
@@ -2234,6 +2300,14 @@ document.addEventListener('click',function(e){
       break;
     case 'clear-assign':
       confirmThen(el,function(){ S.assign={}; S.fu={}; save(); rerender(); });
+      break;
+    case 'shift':
+      (function(){
+        var v=el.getAttribute('data-v'), d=programDate(S.programRaw), t=new Date();
+        d=d||{y:t.getFullYear(),m:t.getMonth()+1,d:t.getDate()};
+        S.shift=v; S.programRaw=setProgramDate(S.programRaw,d.y,d.m,d.d,v);
+        rebuild(); fillTextareas(); save(); rerender();
+      })();
       break;
     case 'blank-start': confirmThen(el,function(){ startBlank(); }); break;
     case 'mg-toggle': ui.mgW[el.getAttribute('data-k')]=!ui.mgW[el.getAttribute('data-k')]; ui.mgMsg=''; rerender(); break;
@@ -2343,7 +2417,7 @@ if(saved&&(saved.pt||saved.pg)&&!saved.sample){
   S.fu=(saved.fu&&typeof saved.fu==='object')?saved.fu:{};
   S.rm=(saved.rm&&typeof saved.rm==='object')?saved.rm:{};
   S.kb=(saved.kb&&typeof saved.kb==='object')?saved.kb:{};
-  S.dpl=dpClean(saved.dpl); buildDp();
+  S.dpl=dpClean(saved.dpl); buildDp(); S.shift=(saved.shift==='Pagi'||saved.shift==='Malam')?saved.shift:'';
   S.dpjp=(saved.dpjp&&typeof saved.dpjp==='object')?saved.dpjp:{}; S.withDp=saved.withDp!==false;
   S.sample=!!saved.sample; S.showEmpty=!!saved.showEmpty; S.hideEmpty=!!saved.hideEmpty;
   S.mig=Array.isArray(saved.mig)?saved.mig:[];
@@ -2381,7 +2455,7 @@ ensureTulip4();
 function autoDate(){
   var t=new Date(), d=programDate(S.programRaw);
   if(d&&d.y===t.getFullYear()&&d.m===t.getMonth()+1&&d.d===t.getDate()) return false;
-  var n=setProgramDate(S.programRaw,t.getFullYear(),t.getMonth()+1,t.getDate());
+  var n=setProgramDate(S.programRaw,t.getFullYear(),t.getMonth()+1,t.getDate(),S.shift||shiftNow(t));
   if(n===S.programRaw) return false;
   S.programRaw=n; rebuild(); save(); return true;
 }
