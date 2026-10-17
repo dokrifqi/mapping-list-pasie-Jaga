@@ -118,6 +118,11 @@ textarea{font-family:var(--f-mono);font-size:13px;line-height:1.55;resize:vertic
 .chip{display:flex;flex-direction:column;align-items:flex-start;gap:2px;min-width:0;min-height:54px;padding:8px 10px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;cursor:pointer;position:relative}
 .chip .code{max-width:100%;padding-right:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:500 11.5px var(--f-mono);letter-spacing:.04em;color:var(--muted)}
 .chip .nm{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:600 14px var(--f-body)}
+.chip .nt{max-width:100%;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;white-space:normal;overflow-wrap:anywhere;font:500 12.5px/1.3 var(--f-body);color:var(--ink);opacity:.8}
+.chip .nt:empty{display:none}
+.chip.on.st-ok .nt,.chip.on.st-x .nt{color:#fff}
+.chip.on.st-wait .nt{color:#1a1a1a}
+.fu-note{width:100%;min-height:42px;margin:6px 0 4px;padding:8px 10px;font-size:14.5px}
 .chip.on{background:var(--accent-soft);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--ink)}
 .chip.on .code{color:var(--muted)}
 .chip.on::after{content:"\2713";position:absolute;top:6px;right:9px;font-size:13px;color:var(--accent)}
@@ -167,6 +172,11 @@ textarea{font-family:var(--f-mono);font-size:13px;line-height:1.55;resize:vertic
 .bedcell.wide{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
 .bedcell.wide .bc{grid-column:1 / -1}
 .bc{font:500 11.5px var(--f-mono);letter-spacing:.03em;color:var(--muted)}
+button.bc{border:0;background:transparent;padding:6px 0;min-height:42px;text-align:left;cursor:pointer;color:var(--accent);text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;font-weight:700}
+.prow-h .code[data-act]{color:var(--accent);font-weight:700;text-decoration:underline;text-decoration-style:dotted;text-underline-offset:3px;padding:8px 6px 8px 0}
+.bedcell.flash{animation:bflash 1.6s ease-out}
+@keyframes bflash{0%,40%{background:var(--accent-soft);box-shadow:0 0 0 4px var(--accent-soft)}100%{background:transparent;box-shadow:0 0 0 0 transparent}}
+.tdata{margin:0 0 8px;width:100%;min-height:40px}
 .bedcell input,.bedcell select{min-width:0;min-height:42px;padding:8px;font-size:14.5px}
 .bedcell select{text-overflow:ellipsis;color:var(--muted)}
 .bedcell.filled input{border-color:var(--accent);background:var(--surface);font-weight:600}
@@ -1261,7 +1271,7 @@ function renderDataSum(){
 }
 function syncRaw(){ S.patientsRaw=serializePatients(S.wards,S.patients); S.manual=[]; }
 function cell(p,i,mg){
-  return '<div class="bedcell'+(p.name?' filled':'')+(p.special?' wide':'')+(mg?' mg':'')+'">'+(p.special?'<input type="text" class="rl" data-act="proom" data-p="'+i+'" value="'+esc(p.room)+'" placeholder="Nomor / nama kamar" autocomplete="off" aria-label="Nomor atau nama kamar">':'<label class="bc" for="bed'+i+'">'+esc(code(p))+'</label>')+
+  return '<div class="bedcell'+(p.name?' filled':'')+(p.special?' wide':'')+(mg?' mg':'')+'">'+(p.special?'<input type="text" class="rl" data-act="proom" data-p="'+i+'" value="'+esc(p.room)+'" placeholder="Nomor / nama kamar" autocomplete="off" aria-label="Nomor atau nama kamar">':'<button type="button" class="bc" data-act="to-pat" data-p="'+i+'" aria-label="Buka pasien '+esc(code(p))+' di tab Pasien">'+esc(code(p))+'</button>')+
     '<input type="text" id="bed'+i+'" data-act="pname" data-p="'+i+'" value="'+esc(p.name)+'" placeholder="Nama" autocomplete="off" autocapitalize="words" enterkeyhint="next" aria-label="Nama pasien '+esc(code(p))+'">'+
     dpSelect(p.id,i,false)+(mg?'<button type="button" class="bdel" data-act="bed-del" data-p="'+i+'" aria-label="Hapus bed '+esc(code(p))+'">&times;</button>':'')+'</div>';
 }
@@ -1530,14 +1540,14 @@ function renderSecHead(){
 }
 
 function vis(p,q){
-  if(!p.name&&!S.showEmpty&&!anyA(p)) return false;
+  if(!p.name&&!S.showEmpty&&!anyA(p)&&p.id!==ui.open) return false;
   if(!q) return true;
   var hay=(p.room+' '+p.bed+' '+p.room+p.bed+' '+p.name+' '+p.ward).toLowerCase();
   return hay.indexOf(q)>=0;
 }
-function chipHtml(p,i,on,st,open){
+function chipHtml(p,i,on,st,open,note){
   return '<button type="button" class="chip'+(on?' on':'')+(on&&st?' st-'+st:'')+(open?' open':'')+(p.name?'':' empty')+'" aria-pressed="'+on+'" data-act="tog" data-p="'+i+'" data-fk="c'+i+'">'+
-    '<span class="code">'+esc(code(p))+'</span><span class="nm">'+esc(p.name||'(tanpa nama)')+'</span></button>';
+    '<span class="code">'+esc(code(p))+'</span><span class="nm">'+esc(p.name||'(tanpa nama)')+'</span>'+(on?'<span class="nt">'+esc(note||'')+'</span>':'')+'</button>';
 }
 function wardBlock(w,sec,q){
   var chips=[], sel=0, tot=0, pan='';
@@ -1547,8 +1557,8 @@ function wardBlock(w,sec,q){
     if(!on&&!ui.pickAll&&!q) return;
     if(on) sel++;
     tot++; var f=on?(S.fu[fuKey(p.id,sec.id)]||{}):{};
-    chips.push(chipHtml(p,i,on,f.s,on&&ui.fuOpen===p.id));
-    if(on&&ui.fuOpen===p.id) pan='<div class="fu-pan"><div class="who">'+esc(code(p)+' '+(p.name||''))+' · follow up</div><div class="fu-btns" role="group" aria-label="Status follow up">'+
+    chips.push(chipHtml(p,i,on,f.s,on&&ui.fuOpen===p.id,on?S.assign[p.id][sec.id]:''));
+    if(on&&ui.fuOpen===p.id) pan='<div class="fu-pan"><div class="who">'+esc(code(p)+' '+(p.name||''))+' · follow up</div><input type="text" class="fu-note" id="fn'+i+'" data-act="note" data-p="'+i+'" data-s="'+ui.sec+'" value="'+esc(S.assign[p.id][sec.id]||'')+'" placeholder="Keterangan, mis. lacak hasil kultur" autocomplete="off" aria-label="Keterangan '+esc(code(p))+'"><div class="fu-btns" role="group" aria-label="Status follow up">'+
       ['ok','x','wait'].map(function(v){ return '<button type="button" class="fu-b" aria-pressed="'+(f.s===v)+'" data-act="fu-st" data-p="'+i+'" data-s="'+ui.sec+'" data-v="'+v+'" data-fk="pfu'+i+'_'+v+'"><span class="e">'+FU_EMO[v]+'</span>'+FU_LBL[v]+'</button>'; }).join('')+
       '</div><button type="button" class="rm" data-act="ptog" data-p="'+i+'" data-s="'+ui.sec+'">Keluarkan dari program ini</button></div>';
   });
@@ -1598,9 +1608,9 @@ function patRow(p,i){
     '<span class="tag none">belum ada program</span>';
   var dpTag=dpShort(p.id)?'<span class="dpt">'+esc(dpShort(p.id))+'</span>':'';
   var h='<div class="prow'+(open?' open':'')+'"><button type="button" class="prow-h" data-act="open" data-p="'+i+'" data-fk="r'+i+'" aria-expanded="'+open+'">'+
-    '<span class="code">'+esc(code(p))+'</span><span class="nm">'+esc(p.name||'(tanpa nama)')+'</span><span class="chev"></span><span class="tags">'+dpTag+tags+'</span></button>';
+    '<span class="code" data-act="to-data" data-p="'+i+'" title="Ubah nama di tab Data">'+esc(code(p))+'</span><span class="nm">'+esc(p.name||'(tanpa nama)')+'</span><span class="chev"></span><span class="tags">'+dpTag+tags+'</span></button>';
   if(open){
-    h+='<div class="panel pnl"><div class="dprow"><label class="lbl sr" for="pd'+i+'">DPJP</label>'+dpSelect(p.id,i,true)+'</div><p class="help">Ketuk program untuk pasien ini. Garis putus: ruangan tidak ada di template.</p><div class="pgrid">';
+    h+='<div class="panel pnl"><button type="button" class="btn sec tdata" data-act="to-data" data-p="'+i+'">Ganti nama pasien (tab Data)</button><div class="dprow"><label class="lbl sr" for="pd'+i+'">DPJP</label>'+dpSelect(p.id,i,true)+'</div><p class="help">Ketuk program untuk pasien ini. Garis putus: ruangan tidak ada di template.</p><div class="pgrid">';
     S.sections.forEach(function(s,si){
       var on=has(a,s.id), ok=!s.wards.length||s.wards.some(function(t){ return wardMatch(p.ward,t.label); });
       h+='<button type="button" class="pill'+(on?' on':'')+(ok?'':' off')+'" aria-pressed="'+on+'" data-act="ptog" data-p="'+i+'" data-s="'+si+'" data-fk="pp'+i+'_'+si+'">'+esc(s.title)+'</button>';
@@ -2223,6 +2233,26 @@ document.addEventListener('click',function(e){
       rerender(); break;
     case 'ptog': sec=S.sections[+el.getAttribute('data-s')]; toggle(p,sec); if(p&&ui.fuOpen===p.id) ui.fuOpen=''; rerender(); break;
     case 'open': if(p) ui.open=(ui.open===p.id)?'':p.id; rerender(); if(ui.open){ var op2=document.querySelector('#pat-list .prow.open'); if(op2&&op2.scrollIntoView) op2.scrollIntoView({block:'start'}); } break;
+    case 'to-pat':
+      if(p){
+        ui.open=p.id; ui.flt='all'; ui.qPat=''; var qp=$('#q-pat'); if(qp) qp.value='';
+        showTab('pat');
+        var op3=document.querySelector('#pat-list .prow.open');
+        if(op3&&op3.scrollIntoView) op3.scrollIntoView({block:'start'});
+      }
+      break;
+    case 'to-data':
+      if(p){
+        ui.wardClosed[p.wkey]=false; showTab('data');
+        var ni=document.getElementById('bed'+S.patients.indexOf(p));
+        if(ni){
+          var bc=ni.closest('.bedcell');
+          if(bc&&bc.scrollIntoView) bc.scrollIntoView({block:'center'});
+          if(bc){ bc.classList.add('flash'); }
+          try{ ni.focus({preventScroll:true}); ni.select(); }catch(e){}
+        }
+      }
+      break;
     case 'flt': ui.flt=el.getAttribute('data-v'); rerender(); break;
     case 'notes': ui.notes=!ui.notes; rerender(); break;
     case 'more': ui.more=!ui.more; rerender(); break;
@@ -2336,7 +2366,7 @@ document.addEventListener('input',function(e){
   }
   if(t.getAttribute&&t.getAttribute('data-act')==='note'){
     var p=S.patients[+t.getAttribute('data-p')], sec=S.sections[+t.getAttribute('data-s')];
-    if(p&&sec&&has(S.assign[p.id],sec.id)){ S.assign[p.id][sec.id]=t.value; saveSoon(); }
+    if(p&&sec&&has(S.assign[p.id],sec.id)){ S.assign[p.id][sec.id]=t.value; saveSoon(); if(sec===S.sections[ui.sec]){ var nt=document.querySelector('.chip[data-fk="c'+t.getAttribute('data-p')+'"] .nt'); if(nt) nt.textContent=t.value; } }
     return;
   }
   if(t.getAttribute&&t.getAttribute('data-act')==='rm'){
